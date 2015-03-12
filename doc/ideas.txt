@@ -1,3 +1,22 @@
+Organization:
+    Move generic/non-board-specific code to a separate namespace:
+
+    myboard/
+        classes/ (MyBoard namespace)
+            helper (MyBoard/Helper namespace)
+
+    Such classes can be
+        Util
+        Request/Response
+        Template
+        Cache
+        Session
+        ClassLoader (or maybe not since bootstrap already sets up MyBoard class loader function)
+        Security
+        Url
+        Captcha
+
+
 MyBoard
     A simple custom bulliten board software
     PHP based
