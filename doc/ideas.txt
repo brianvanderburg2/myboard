@@ -1,0 +1,53 @@
+MyBoard
+    A simple custom bulliten board software
+    PHP based
+    Should be able to run under apache/lighttpd/nginx
+    Database using MySQL/MariaDB
+    Multi-usable (a single installation can be used more than once)
+        This is accomplished by creating a file (index.php or whatever),
+        including the MyBoard bootstrap.php file, then calling the
+        MyBoard::Execute method passing the app configuration.
+        If the public and/or private data directory are directly accessible
+        then a URL can be listed.  If the URL is empty, then the sendfile
+        method is used.  If the method is nginx, the URL is treated as the
+        prefix to access the data.
+        Configuration:
+            userdata.path
+            userdata.sendmethod
+            userdata.url
+            // appdata.path does not exist, it is inferred from the software
+            appdata.sendmethod
+            appdata.url
+
+
+Configuration
+    The configuration is what is passed in initially to the board application.
+    This is used to get the application up and running.
+
+    userdata.path - REQUIRED - The path to the user data directory, that is the
+        data that is created or customized by the end user)
+    userdata.sendmethod - REQUIRED -  The method to use to send files from the user
+        data directory.  If not specified, url is assumed.
+        url (use a public URL prefix)
+        direct (directly send the file from the PHP code (slow, should not use)
+        apache-xsendfile
+        apache-xsendfile2
+        lighttd-xsendfile
+        nginx-xaccelredirect (url is used as the prefix)
+    userdata.url
+        method=url, the URL prefix for user data, written directly to HTML
+        method=others (url is written as entry.php/data/(public/user/...)
+        method=nginx-xaccelredirect, the prefix to use for nginx x-accel-redirect
+    # appdata.path - Does not exist, inferred by the application
+    appdata.sendmethod - Same as userdata.method, except for the application data
+    appdata.url - Same as userdata.url, except for the application data
+    admin.masterkey - HASH of admin master key, or an array of hashes.  This is used to "login"
+        to the board for administrative purposes.  Such a user can't create posts (since this
+        key doesn't mean the user has a corresponding user id) directly from this key.  It is
+        possible to log in as a user as well as a master admin.
+    database.host (host, host:port, or /socket of database)
+    database.prefix (prefix used for all tables)
+    database.username
+    database.password
+    
+
