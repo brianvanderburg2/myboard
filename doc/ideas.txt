@@ -1,22 +1,3 @@
-Organization:
-    Move generic/non-board-specific code to a separate namespace:
-
-    myboard/
-        classes/ (MyBoard namespace)
-            helper (MyBoard/Helper namespace)
-
-    Such classes can be
-        Util
-        Request/Response
-        Template
-        Cache
-        Session
-        ClassLoader (or maybe not since bootstrap already sets up MyBoard class loader function)
-        Security
-        Url
-        Captcha
-
-
 MyBoard
     A simple custom bulliten board software
     PHP based
@@ -43,9 +24,9 @@ Configuration
     The configuration is what is passed in initially to the board application.
     This is used to get the application up and running.
 
-    userdata.path - REQUIRED - The path to the user data directory, that is the
+    userdata.dir - REQUIRED - The path to the user data directory, that is the
         data that is created or customized by the end user)
-    userdata.sendmethod - REQUIRED -  The method to use to send files from the user
+    userdata.method - REQUIRED -  The method to use to send files from the user
         data directory.  If not specified, url is assumed.
         url (use a public URL prefix)
         direct (directly send the file from the PHP code (slow, should not use)
@@ -57,16 +38,19 @@ Configuration
         method=url, the URL prefix for user data, written directly to HTML
         method=others (url is written as entry.php/data/(public/user/...)
         method=nginx-xaccelredirect, the prefix to use for nginx x-accel-redirect
-    # appdata.path - Does not exist, inferred by the application
-    appdata.sendmethod - Same as userdata.method, except for the application data
+    # appdata.dir - Does not exist, inferred by the application
+    appdata.method - Same as userdata.method, except for the application data
     appdata.url - Same as userdata.url, except for the application data
-    admin.masterkey - HASH of admin master key, or an array of hashes.  This is used to "login"
+    admin.key - HASH of admin master key, or an array of hashes.  This is used to "login"
         to the board for administrative purposes.  Such a user can't create posts (since this
         key doesn't mean the user has a corresponding user id) directly from this key.  It is
         possible to log in as a user as well as a master admin.
-    database.host (host, host:port, or /socket of database)
+    database.host (host of database)
+    database.port (port of database)
+    database.socket (socket of database, do not use with host/port)
+    database.name (name of database to use)
+    database.user (username to use when connecting)
+    database.pass (password to use when connecting)
     database.prefix (prefix used for all tables)
-    database.username
-    database.password
     
 

@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple event dispatcher/hook 
 
-namespace MyBoard\Helper;
+namespace MyBoard;
 
 /**
  * An event dispatching class

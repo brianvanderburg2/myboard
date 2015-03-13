@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Some utility functions
 
-namespace MyBoard\Helper;
+namespace MyBoard;
 
 class Util
 {
@@ -98,6 +98,11 @@ class Util
         {
             return substr($str, -$len) == $needle;
         }
+    }
+
+    public static function arrayGet($arr, $key, $default=null, $prepend="", $append="")
+    {
+        return isset($arr[$key]) ? "{$prepend}{$arr[$key]}{$append}" : $default;
     }
 
     protected static function triggerMagicError($magic, $name, $bt, $type)

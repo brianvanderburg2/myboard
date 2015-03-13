@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Provide some simple security related functions
 
-namespace MyBoard\Helper;
+namespace MyBoard;
 
 class Security
 {
