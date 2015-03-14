@@ -8,36 +8,18 @@ namespace MyBoard;
 
 class Template
 {
-    protected $fn = array();
     protected $cache = array();
     protected $params = null;
     protected $userdir = null;
     protected $appdir = null;
 
-    public function __construct($userdir, $appdir, $params=array())
+    public function __construct($board)
     {
-        $this->userdir = $userdir;
-        $this->appdir = $appdir;
-        $this->params = $params;
+        $this->userdir = $board->userdatadir . '/templates';
+        $this->appdir = $board->appdatadir . '/templates';
+        $this->params = array('board' => $board);
     }
  
-    public function registerFunction($name, $callback)
-    {
-        $this->fn[$name] = $callback;
-    }
-
-    public function __call($name, $args)
-    {
-        if(isset($this->fn[$name]))
-        {
-            return call_user_func_array($this->fn[$name], $args);
-        }
-        else
-        {
-            Util::triggerCallError($name, debug_backtrace()[0]);
-        }
-    }
-
     public function send($template, $params=null, $override=FALSE)
     {
         print $this->get($template, $params, $override);

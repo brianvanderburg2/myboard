@@ -8,12 +8,16 @@ namespace MyBoard;
 
 class Security
 {
-    public static function checkPathComponent($part)
+    public function __construct($board)
+    {
+    }
+
+    public function checkPathComponent($part)
     {
         return (bool)preg_match("#^[a-zA-Z0-9][a-zA-Z0-9_\\.-]*$#", $part);
     }
 
-    public static function checkPath($path)
+    public function checkPath($path)
     {
         if(strlen($path) == 0)
             return FALSE;
@@ -43,7 +47,7 @@ class Security
                     return FALSE;
                 }
             }
-            else if(!static::checkPathComponent($part))
+            else if(!$this->checkPathComponent($part))
             {
                 return FALSE;
             }

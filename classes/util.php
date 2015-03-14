@@ -104,22 +104,5 @@ class Util
     {
         return isset($arr[$key]) ? "{$prepend}{$arr[$key]}{$append}" : $default;
     }
-
-    protected static function triggerMagicError($magic, $name, $bt, $type)
-    {
-        trigger_error('Undefined property via ' . $magic . '(): ' . $name .
-            ' in ' . $bt['file'] . ' on line ' . $bt['line'],
-            $type);
-    }
-
-    public static function triggerGetError($name, $bt, $type=E_USER_NOTICE)
-    {
-        return static::triggerMagicError('__get', $name, $bt, $type);
-    }
-
-    public static function triggerCallError($name, $bt, $type=E_USER_ERROR)
-    {
-        return static::triggerMagicError('__call', $name, $bt, $type);
-    }
 }
 

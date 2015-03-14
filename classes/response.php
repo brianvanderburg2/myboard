@@ -11,6 +11,10 @@ namespace MyBoard;
  */
 class Response
 {
+    public function __construct($board)
+    {
+    }
+
     /**
      * Disable caching of pages.
      */

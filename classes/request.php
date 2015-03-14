@@ -11,34 +11,20 @@ namespace MyBoard;
  */
 class Request
 {
+    public $pathinfo = null;
+    public $method = null;
+    public $entry = null;
+
+
     /**
      * Construct the request
      */
-    public function __construct()
+    public function __construct($board)
     {
         // sanitize inputs, etc
-    }
-
-    /**
-     * Lazy get variables
-     */
-    public function __get($name)
-    {
-        switch($name)
-        {
-            case 'method':
-                return $this->method = $this->getMethod();
-
-            case 'pathinfo':
-                return $this->pathinfo = $this->getPathInfo();
-
-            case 'entry':
-                return $this->entry = $this->getEntryPoint();
-
-            default:
-                Util::triggerGetError($name);
-                return null;
-        }
+        $this->pathinfo = $this->getPathInfo();
+        $this->method = $this->getMethod();
+        $this->entry = $this->getEntryPoint();
     }
 
     /**

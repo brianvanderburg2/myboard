@@ -11,16 +11,33 @@ namespace MyBoard;
  */
 class Board
 {
-    protected $config = null;
-    
+    // Database schema version number
+    const DBVERSION = 1;
+
+    // Board version number
+    const MAJORVERSION = 0;
+    const MINORVERSION = 0;
+    const REVISION = 0;
+
+    // Forum variables
+    public $config = null;
+    protected $_timer = null;
+
+    public $security = null;
+    public $request = null;
+    public $response = null;
+    public $template = null;
+    public $db = null;
+    public $cache = null;
+    public $session = null;
+    public $user = null;
+    public $installed = FALSE;
+
     // config
     public $userdatadir = null;
     public $userdatamethod = null;
-
     public $appdatadir = null;
     public $appdatamethod = null;
-
-    public $dbprefix = "";
 
     protected $adminkey = null;
 
@@ -36,14 +53,33 @@ class Board
     }
 
     /**
+     * Start the board software
+     */
+    public function run()
+    {
+        $this->setup();
+        $this->dispatch();
+    }
+
+    /**
      * Perform setup
      */
     protected function setup()
     {
+        // Start the timer
+        $this->_timer = microtime(TRUE);
+
         // Set up error handling
-        register_shutdown_function(array($this, 'shutdownHandler'));
-        set_error_handler(array($this, 'errorHandler'));
-        set_exception_handler(array($this, 'exceptionHandler'));
+        register_shutdown_function(function() {
+            return $this->shutdownHandler(); 
+        });
+        set_error_handler(function($a, $b, $c, $d, $e) {
+            return $this->errorHandler($a, $b, $c, $d, $e);
+        });
+        set_exception_handler(function($e) {
+            return $this->exceptionHandler($e);
+        });
+
         ini_set('display_errors', 'off');
         error_reporting(E_ALL);
 
@@ -62,115 +98,17 @@ class Board
         $this->adminkey = Util::arrayGet($config, 'admin.key');
 
         // Create default objects
-        $this->request = new Request();
-    }
+        $this->security = new Security($this);
+        $this->request = new Request($this);
+        $this->response = new Response($this);
+        $this->template = new Template($this);
+        $this->db = new Database($this);
+        $this->cache = new Cache($this);
+        $this->session = new Session($this);
+        $this->user = new User($this);
 
-    /**
-     * lazy setup and access of certain variables.
-     */
-    public function __get($name)
-    {
-        switch($name)
-        {
-            // Template
-            case 'template':
-                $this->setupTemplate();
-                return $this->template;
-
-            // Database
-            case 'db':
-                $this->setupDatabase();
-                return $this->db;
-
-            // Cache
-            case 'cache':
-                $this->setupCache();
-                return $this->cache;
-
-            // Session
-            case 'session':
-                $this->setupSession();
-                return $this->session;
-
-            default:
-                Util::triggerGetError($name, debug_backtrace()[0]);
-                return null;
-        };
-    }
-
-    /**
-     * Set up the template.
-     */
-    protected function setupTemplate()
-    {
-        $this->template = new Template(
-            $this->userdatadir . '/templates',
-            $this->appdatadir . '/templates',
-            array('board' => $this)
-        );
-    }
-
-    /**
-     * Set up the database.
-     */
-    protected function setupDatabase()
-    {
-        $config = $this->config;
-
-        $dsn = "mysql:";
-
-        // host/port/socket
-        $socket = Util::arrayGet($config, 'database.socket', null, 'unix_socket=');
-        if($socket)
-        {
-            $dsn .= $socket;
-        }
-        else
-        {
-            $dsn .= Util::arrayGet($config, 'database.host', 'host=localhost', 'host=');
-            $dsn .= Util::arrayGet($config, 'database.port', '', ';port=');
-        }
-
-        // database name
-        $dsn .= Util::arrayGet($config, 'database.name', '', 'dbname=');
-
-        // username and password
-        $user = Util::arrayGet($config, 'database.user')
-        $pass = Util::arrayGet($config, 'database.pass')
-        $this->config['database.pass'] = "";
-
-        // database table prefix
-        $this->dbprefix = Util::arrayGet($config, 'database.prefix', '');
-
-        // connect to db and perform initial setup
-        $this->db = new \PDO($dsn, $user, $pass);
-
-        $this->db->exec('SET NAMES utf8');
-    }
-
-    /**
-     * Set up the cache
-     */
-    protected function setupCache()
-    {
-        $this->cache = null;
-    }
-
-    /**
-     * Set up the session
-     */
-    protected function setupSession()
-    {
-        $this->session = null;
-    }
-
-    /**
-     * Start the board software
-     */
-    public function run()
-    {
-        $this->setup();
-        $this->dispatch();
+        // Get install state
+        $this->installed = $this->checkInstall();
     }
 
     /**
@@ -178,65 +116,74 @@ class Board
      */
     protected function dispatch()
     {
-        if(strlen($this->request->pathinfo) == 0)
+        $pathinfo = $this->request->pathinfo;
+
+        // redirect if needed
+        if(strlen($pathinfo) == 0)
         {
             $this->redirect('/index');
         }
-        else if(substr($this->request->pathinfo, -1) == '/')
+        else if(substr($pathinfo, -1) == '/')
         {
-            $this->redirect(rtrim($this->request->pathinfo, '/'));
+            $this->redirect(rtrim($pathinfo, '/'));
         }
 
-        // Check each component in the path info
-        $found = FALSE;
-        $filename = __DIR__ . '/../actions';
+        // check the components
+        $parts = explode('/', $pathinfo);
 
-        $parts = explode('/', $this->request->pathinfo);
-        if(count($parts) == 0)
+        if(strlen($parts[0]) == 0)
+            array_shift($parts); // first part is normally empty since pathinfo starts with /
+
+        foreach($parts as $part)
         {
-            $this->redirect('/index');
-        }
-
-        if(strlen($parts[0]) == 0) // First part is normally blank
-        {
-            array_shift($parts);
-        }
-
-        while(($part = array_shift($parts)) !== null)
-        {
-            // Add part to filename
-            if(strlen($part) > 0 && Security::checkPathComponent($part))
+            if(strlen($part) == 0 || !$this->security->checkPathComponent($part))
             {
-                $filename .= '/' . $part;
-            }
-            else
-            {
-                return FALSE;
-            }
-
-            // Check if file exists
-            if(file_exists($filename . '.php'))
-            {
-                $found = TRUE;
-                $filename = $filename . '.php';
-                break;
+                $this->notfound();
+                exit();
             }
         }
 
-        // Build remainder of parts
-        if($found)
+        // determine action and parameters
+        $action = (count($parts) > 0) ? $parts[0] : 'index';
+        $params = (count($parts) > 1) ? array_slice($parts, 1) : array();
+
+        // redirect to install in not already installed
+        if($action != 'install' && $action != 'resources')
         {
-            $params = array(
-                'board' => $this,
-                'pathinfo' => implode('/', $parts)
-            );
-            Util::loadPhp($filename, $params);
-            return TRUE;
+            if(!$this->installed)
+            {
+                $this->redirect('/install');
+                exit();
+            }
+        }
+
+        // execute the action
+        $filename = __DIR__ . '/../actions/' . $action . '.php';
+        if(is_file($filename))
+        {
+            Util::loadPhp($filename, array('board' => $this, 'action' => $action, 'params' => $params), TRUE);
         }
         else
         {
             $this->notfound();
         }
+        exit();
+    }
+
+    /**
+     * Calculated values
+     */
+    public function timer()
+    {
+        return microtime(TRUE) - $this->_timer;
+    }
+
+    /**
+     * Check if the database has been installed.
+     */
+    public function checkInstall()
+    {
+        return FALSE;
     }
 
     /**
@@ -244,8 +191,7 @@ class Board
      */
     public function notfound()
     {
-        $response = new Response();
-        $response->status(404, 'Not Found');
+        $this->response->status(404, 'Not Found');
         exit();
     }
 
@@ -262,8 +208,7 @@ class Board
      */
     public function redirect($url)
     {
-        $response = new Response();
-        $response->redirect($this->url($url));
+        $this->response->redirect($this->url($url));
         exit();
     }
 
@@ -302,6 +247,7 @@ class Board
     {
         try
         {
+            print($e);
         }
         catch(Exception $e)
         {
