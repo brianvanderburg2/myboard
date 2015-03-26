@@ -8,23 +8,17 @@ namespace MyBoard;
 
 class Security
 {
-    public function __construct($board)
-    {
-    }
-
-    public function checkPathComponent($part)
+    public static function checkPathComponent($part)
     {
         return (bool)preg_match("#^[a-zA-Z0-9][a-zA-Z0-9_\\.-]*$#", $part);
     }
 
-    public function checkPath($path)
+    public static function checkPath($path)
     {
         if(strlen($path) == 0)
             return FALSE;
 
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
-        $parts = explode(DIRECTORY_SEPARATOR, $path);
-
+        $parts = explode('/', $path);
         if(count($parts) == 0)
             return FALSE;
 
