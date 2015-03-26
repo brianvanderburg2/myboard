@@ -55,7 +55,7 @@ class Board
     /**
      * Start the board software
      */
-    public function run()
+    public function execute()
     {
         $this->setup();
         $this->dispatch();

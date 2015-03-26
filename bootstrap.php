@@ -20,9 +20,4 @@ spl_autoload_register(function($classname) {
     }
 });
 
-function run($config)
-{
-    $board = new Board($config);
-    $board->run();
-}
 
