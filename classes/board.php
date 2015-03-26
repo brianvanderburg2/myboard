@@ -23,7 +23,6 @@ class Board
     public $config = null;
     protected $_timer = null;
 
-    public $security = null;
     public $request = null;
     public $response = null;
     public $template = null;
@@ -88,17 +87,16 @@ class Board
 
         // user data directory
         $this->userdatadir = Util::arrayGet($config, 'userdata.dir');
-        $this->userdatamethod = Util::arrayGet($config, 'userdata.method');
+        $this->userdatasendfile = Util::arrayGet($config, 'userdata.sendfile');
 
         // app data directory
         $this->appdatadir = __DIR__ . '/../data';
-        $this->appdatamethod = Util::arrayGet($config, 'appdata.method');
+        $this->appdatasendfile = Util::arrayGet($config, 'appdata.sendfile');
 
         // Admin key
         $this->adminkey = Util::arrayGet($config, 'admin.key');
 
         // Create default objects
-        $this->security = new Security($this);
         $this->request = new Request($this);
         $this->response = new Response($this);
         $this->template = new Template($this);
@@ -136,7 +134,7 @@ class Board
 
         foreach($parts as $part)
         {
-            if(strlen($part) == 0 || !$this->security->checkPathComponent($part))
+            if(strlen($part) == 0 || !Security::checkPathComponent($part))
             {
                 $this->notfound();
                 exit();
@@ -211,20 +209,6 @@ class Board
         $this->response->redirect($this->url($url));
         exit();
     }
-
-    /**
-     * Send a file to the browser.
-     */
-    public function sendfile($file)
-    {
-        if(!Security::checkPath($file))
-        {
-            $this->notfound();
-        }
-
-        // determine if we are sending user or app file
-    }
-
 
     /**
      * Our custom shutdown handler

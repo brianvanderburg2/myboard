@@ -11,8 +11,11 @@ namespace MyBoard;
  */
 class Response
 {
+    protected $board;
+
     public function __construct($board)
     {
+        $this->board = board;
     }
 
     /**
@@ -39,16 +42,6 @@ class Response
         header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $delta) . ' GMT');
     }
     
-    /**
-     * Enable shared caching of pages instead of private caching.
-     *
-     * @param delta The maximum number of seconds the page should be cached.
-     */
-    public function share($delta=0)
-    {
-        $this->cache($delta, FALSE);
-    }
-
     /**
      * Redirect to another location.
      *
@@ -157,30 +150,92 @@ class Response
     }
 
     /**
-     * This will set the last modified timestamp and, if If-Modified-Since is set
-     * set the correct status header if needed.
+     * Send a file
      *
-     * @param timestamp The timestamp being checked.
-     * @return TRUE if modified, otherwise FALSE.
+     * @param $file The relative path of the file to send
+     * @param $cache The time the client should cache this file
+     * @param $private Request any middle-man caches to not cache the result if true.
      */
-    public function ifModifiedSince($timestamp)
+    public function sendFile($file, $cache=0, $private=FALSE)
     {
-        $now = time();
-        if($timestamp > $now)
-            $timestamp = $now;
+        // Security check
+        if(!Security::checkPath($file))
+        {
+            $this->board->notfound();
+            exit();
+        }
 
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $timestamp));
+        // Determine if we are sending user or app data.
+        if(file_exists($this->board->userdir . '/' . $file))
+        {
+            $isuser = TRUE;
+            $filename = $this->board->userdir . '/' . $file; 
+        }
+        else if(file_exists($this->board->appdir . '/' . $file))
+        {
+            $isuser = FALSE;
+            $filename = $this->board->appdir . '/' . $file;
+        }
+        else
+        {
+            $this->board->notfound();
+            exit();
+        }
+
+        // Handle if-modified-since header
+        $file_timestamp = filemtime($filename);
         if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
         {
             $if_modified_since = strtotime(preg_replace('#;.*$#', '', $_SERVER['HTTP_IF_MODIFIED_SINCE']));
-            if($if_modified_since >= $timestamp)
+            if($if_modified_since >= $file_timestamp)
             {
                 $this->status(304, 'Not Modified');
-                return FALSE;
+                exit();
             }
         }
-            
-        return TRUE;
+        
+        // Set headers: Content-Type, Content-Length, Content-Disposition
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $file_timestamp));
+        header('Content-Length: ' . filesize($file));
+
+        $fi = new \finfo(FILEINFO_NONE, Util::arrayGet($this->board->config, 'mime.magicfile'));
+        $type = $fi->file($filename, FILEINFO_MIME_TYPE);
+        if($type === FALSE)
+            $type = 'application/octed-stream';
+
+        header('Content-Type: ' . $type);
+
+        if($cache == 0)
+        {
+            $this->noCache();
+        }
+        else
+        {
+            $this->cache($cache, $private);
+        }
+        
+
+        // Only proceed if needed
+        if($this->board->request->method == 'head')
+            exit();
+
+        // Send the file through
+        while(@ob_end_flush());
+
+        if($isuser && $this->board->userdirsendfile)
+        {
+            call_user_func($this->board->userdirsendfile($file, $filename));
+            exit();
+        }
+        else if(!$isuser && $this->board->appdirsendfile)
+        {
+            call_user_func($this->board->appdirsendfile($file, $filename));
+            exit();
+        }
+
+        // Got here, manually send using readfile
+        @readfile($filename, FALSE);
+        exit();
     }
 }
 
