@@ -24,6 +24,12 @@ tarball:
 	git archive --format=tar --prefix=$(PREFIX)/ HEAD | xz > output/$(PREFIX).tar.xz
 	gpg --detach-sign --armour  output/$(PREFIX).tar.xz
 
+# Documentation
+.PHONY: docs
+docs:
+	mkdir -p output
+	doxygen
+
 # Cleanup
 .PHONY: clean
 clean:
