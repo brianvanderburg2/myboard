@@ -1,8 +1,13 @@
 <?php
 
-// File:        request.php
-// Author:      Brian Allen Vanderburg Ii
-// Purpose:     A simple class for parsing and handling requests
+/**
+ * \file
+ * \author      Brian Allen Vanderburg II
+ * \date        2015
+ * \copyright   MIT License
+ *
+ * A request object handles basic parsing of requests.
+ */
 
 namespace MyBoard;
 
@@ -11,13 +16,15 @@ namespace MyBoard;
  */
 class Request
 {
-    public $pathinfo = null;
-    public $method = null;
-    public $entry = null;
+    public $pathinfo = null; /**< \brief The PATHINFO of the request */
+    public $method = null; /**< \brief The method of the request.  \see getMethod */
+    public $entry = null; /**< \brief The PHP entry point of the request */
 
 
     /**
      * Construct the request
+     *
+     * \param $board The instance of the board software.
      */
     public function __construct($board)
     {
@@ -29,6 +36,12 @@ class Request
 
     /**
      * Determine the request method
+     *
+     * \return A string representing the request method:
+     *   - head
+     *   - get
+     *   - post
+     *   - unknown
      */
     protected function getMethod()
     {
@@ -53,6 +66,10 @@ class Request
 
     /**
      * Determine the PATH_INFO
+     *
+     * \param $calc 
+     *   - If TRUE, calculate from REQUEST_URI instead of using PATH_INFO
+     *   - Otherwise, use PATH_INFO if available else calculate from REQUEST_URI
      */
     protected function getPathInfo($calc=FALSE)
     {

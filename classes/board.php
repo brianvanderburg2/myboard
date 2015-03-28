@@ -1,8 +1,15 @@
 <?php
 
-// File:        board.php
-// Author:      Brian Allen Vanderburg II
-// Purpose:     Class representing the board and entry point
+/**
+ * \file
+ * \author      Brian Allen Vanderburg II
+ * \date        2015
+ * \copyright   MIT License
+ *
+ * This class represents the board and serves as the entry point.  It
+ * contains other objects and dispatches the request to the correct
+ * action file.
+ */
 
 namespace MyBoard;
 
@@ -11,13 +18,10 @@ namespace MyBoard;
  */
 class Board
 {
-    // Database schema version number
-    const DBVERSION = 1;
+    const DBVERSION = 1; /**< \brief Schema version for the database */
 
-    // Board version number
-    const MAJORVERSION = 0;
-    const MINORVERSION = 0;
-    const REVISION = 0;
+    const MAJORVERSION = 0; /**< \brief Major version for board software */
+    const MINORVERSION = 0; /**< \brief Minor version for board software */
 
     // Forum variables
     public $config = null;

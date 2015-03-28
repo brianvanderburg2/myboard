@@ -1,8 +1,13 @@
 <?php
 
-// File:        bootstrap.php
-// Author:      Brian Allen Vanderburg II
-// Purpose:     Bootstrap file for the MyBoard application
+/**
+ * \file
+ * \author      Brian Allen Vanderburg II
+ * \date        2015
+ * \copyright   MIT License
+ *
+ * This file is the bootstrap file for the MyBoard software.
+ */
 
 namespace MyBoard;
 
