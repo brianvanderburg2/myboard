@@ -37,7 +37,7 @@ class Database extends \PDO
         $board->config['database.pass'] = "";
 
         // database table prefix
-        $this->prefix = Util::arrayGet($config, 'database.prefix', '');
+        $this->prefix = Util::arrayGet($config, 'database.prefix', 'myboard_');
 
         // connect to db and perform initial setup
         parent::__construct($dsn, $user, $pass, array(
