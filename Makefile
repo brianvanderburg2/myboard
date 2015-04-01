@@ -35,3 +35,14 @@ docs:
 clean:
 	rm -r output
 
+# Test
+.PHONY: test
+test: CONFIG=test/config.php
+test: PORT=8080
+test: HOST=localhost
+test:
+	mkdir -p output/test
+	cp test/index.php output/test/index.php
+	cp $(CONFIG) output/test/config.php
+	php -S $(HOST):$(PORT) -t output/test
+
