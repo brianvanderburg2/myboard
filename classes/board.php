@@ -131,12 +131,12 @@ class Board
         }
 
         // check the components
-        $parts = explode('/', $pathinfo);
+        $path = explode('/', $pathinfo);
 
-        if(strlen($parts[0]) == 0)
-            array_shift($parts); // first part is normally empty since pathinfo starts with /
+        if(strlen($path[0]) == 0)
+            array_shift($path); // first part is normally empty since pathinfo starts with /
 
-        foreach($parts as $part)
+        foreach($path as $part)
         {
             if(strlen($part) == 0 || !Security::checkPathComponent($part))
             {
@@ -145,12 +145,8 @@ class Board
             }
         }
 
-        // determine action and parameters
-        $action = (count($parts) > 0) ? $parts[0] : 'index';
-        $params = (count($parts) > 1) ? array_slice($parts, 1) : array();
-
         // redirect to install in not already installed
-        if($action != 'install' && $action != 'resources')
+        if($path[0] != 'install' && $path[0] != 'resource')
         {
             if(!$this->installed)
             {
@@ -159,16 +155,9 @@ class Board
             }
         }
 
-        // execute the action
-        $filename = __DIR__ . '/../actions/' . $action . '.php';
-        if(is_file($filename))
-        {
-            Util::loadPhp($filename, array('board' => $this, 'action' => $action, 'params' => $params), TRUE);
-        }
-        else
-        {
-            $this->notfound();
-        }
+        // Otherwise, render the result
+        $renderer = new Renderer\Dispatch($this);
+        $renderer->render($path);
         exit();
     }
 

@@ -19,6 +19,26 @@ MyBoard
             appdata.sendmethod
             appdata.url
 
+Pages
+    index /index
+    portal /portal
+    view forums /forum[/<fid>[/<seo>]
+    view topic /topic/<tid>[/<seo>]
+    new topic /newtopic/<fid>
+    new post /newpost/<tid>
+    edit post (mod action only) /editpost/<pid>
+    login /login
+    logout /logout (show a logout page)
+    logout /logout/<key> (direct logout without token)
+    userpage /userpage/<uid|username>[/<page>]
+
+    GET parameters will control some items:  For instance:
+
+    /userpage/admin?action=edit
+    /userpage/admin/page2?action=edit
+    /userpage/admin?action=new
+    /userpage/admin/page2?action=delete
+
 
 Configuration
     The configuration is what is passed in initially to the board application.
@@ -53,4 +73,144 @@ Configuration
     database.pass (password to use when connecting)
     database.prefix (prefix used for all tables)
     
+Features
+    User Page
+        A user page is a lot like a post in that a user can use any bbcode
+        to create a page for their profile.
+    Profile Comments
+        Comments for a user's profile
+    Private Messages
+    BBCode
+    Find/Replace BBCODE
+    Image providers [image src="..." provider="..."]...[/img]
+    Audio providers [audio]
+    Video providers [video]
+    Attachments
+
+Database
+    Database object derives from PDO.  Maybe change it to contain a PDO object instead
+    Target MySQL/MariaDB
+    execfile
+        Execute an external sql file
+        Need to read file in, replace table prefix, and exec line
+        Each line is a command unless
+            Starts with a # (ignored)
+            Starts with whitespace (continuation of previous line)
+
+Tables
+    settings
+        name
+        value
+    users
+        --- basic stuff
+        id (INTEGER PRIMARY KEY NOT NULL, 64 bit preferred)
+        username (unique name of the user)
+        password (hash of the user password: "sha1:...")
+        email (normally an email address, but to allow different contact methods, encoded: "email:..."
+        banned (if set, the user is banned until the date specified by this, or permanently if <0)
+        activation (if set, the user is not active yet and must activate)
+        group (primary user group)
+        posts (incremented each time user makes a post, including starting a topic), fix counts
+        topics (incremented each time the user starts a topic) fix counts
+        joined
+        last visited
+        --- profile stuff
+        realname
+        userpage
+        website
+        occupation
+        interests
+        birthday
+        signature
+        --- settings
+        public email
+        admin contact
+        allow private messages
+        hide online status
+        language
+        theme
+        timezone
+        date format
+        ---
+        display images
+        display flash
+        display smilies
+        display signatures
+        display avatars
+        ---
+        show N recent topics
+        order topics by
+        order direction
+        ---
+        show N recent posts
+        order by
+        direction
+    groups
+        id
+        name
+        public
+        permissions
+    members
+        id (really? maybe not)
+        groupid
+        memberid
+    forums
+        id
+        parent
+        inherit (inherit permissions and mods)
+        name
+        type (forum, category)
+    topics
+        id
+        forum
+        userid
+        name
+        time
+    posts
+        id
+        topic
+        userid
+        time
+        contents
+    mods
+        id (maybe not)
+        forumid
+        userid
+    permissions
+        id (maybe not)
+        forumid
+        groupid
+        perms
+    notices
+        id
+        content
+        type
+        forum
+    joins (request to join a public group)
+    leaders
+        id
+        groupid
+        leaderid
+    pms
+    templates
+    friends
+        id
+        userid
+        friendid
+    enemies
+        id
+        userid
+        enemyid
+    tracking
+        id
+        userid
+        time
+        address
+    subscriptions
+    bookmarks
+    drafts
+    pmdrafts
+    attachments
+
+
 
