@@ -1,23 +1,48 @@
-MyBoard
-    A simple custom bulliten board software
-    PHP based
-    Should be able to run under apache/lighttpd/nginx
-    Database using MySQL/MariaDB
-    Multi-usable (a single installation can be used more than once)
-        This is accomplished by creating a file (index.php or whatever),
-        including the MyBoard bootstrap.php file, then calling the
-        MyBoard::Execute method passing the app configuration.
-        If the public and/or private data directory are directly accessible
-        then a URL can be listed.  If the URL is empty, then the sendfile
-        method is used.  If the method is nginx, the URL is treated as the
-        prefix to access the data.
-        Configuration:
-            userdata.path
-            userdata.sendmethod
-            userdata.url
-            // appdata.path does not exist, it is inferred from the software
-            appdata.sendmethod
-            appdata.url
+Particular use cases
+
+    Create the board object:
+ 
+        $board = new MyBoard\Board($config)
+
+    Run the board (entry.php or whatever)
+
+        $board->execute()
+
+    Show user information or login/logout (can put on any page if desired)
+
+        $board->user->isLoggedIn()
+        $board->user->login($username, $password)
+
+    Show comments for a section of a page
+
+        Solution 1:
+            Use JSON/Ajax to pull comments in
+
+        Solution 2:
+            Just link to a specific topic on the board created for
+            comments.
+
+    Use templates from the board (note all templates will
+        get certain initial varialbes, mainly $board, and always $template)
+
+        $myboard->template->get('name', $params)
+
+    Use captcha from board
+
+        Redirect to:
+
+            entry.php/captcha/prompt/<keyname>/return=
+
+        Afterward:
+
+            $key = $myboard->captcha->new()
+            $myboard->captcha->embed($key)
+
+                (for image captchas, this will create an image element that links back to
+                entry.php/captcha/<key>[/params] which will call $myboard->captcha->display($key, $params)
+
+            $myboard->captcha->verify($key, $userentry)
+
 
 Pages
     index /index

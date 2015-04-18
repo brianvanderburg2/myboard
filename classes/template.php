@@ -15,8 +15,8 @@ class Template
 
     public function __construct($board)
     {
-        $this->userdir = $board->userdatadir . '/templates';
-        $this->appdir = $board->appdatadir . '/templates';
+        $this->userdir = $board->userdata.dir . '/templates';
+        $this->appdir = $board->appdata.dir . '/templates';
         $this->params = array('board' => $board);
     }
  

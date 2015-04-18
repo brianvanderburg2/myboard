@@ -34,13 +34,10 @@ class Board
     public $cache = null;
     public $session = null;
     public $user = null;
-    public $installed = FALSE;
 
     // config
-    public $userdatadir = null;
-    public $userdatamethod = null;
-    public $appdatadir = null;
-    public $appdatamethod = null;
+    public $userdata = null;
+    public $appdata = null;
 
     protected $adminkey = null;
 
@@ -65,9 +62,9 @@ class Board
     }
 
     /**
-     * Perform setup
+     * Perform setup. Made public so it can be accessed externally.
      */
-    protected function setup()
+    public function setup()
     {
         // Start the timer
         $this->_timer = microtime(TRUE);
@@ -90,12 +87,16 @@ class Board
         $config = $this->config;
 
         // user data directory
-        $this->userdatadir = Util::arrayGet($config, 'userdata.dir');
-        $this->userdatasendfile = Util::arrayGet($config, 'userdata.sendfile');
+        $this->userdata = new Attr(array(
+            'dir' => Util::arrayGet($config, 'userdata.dir'),
+            'callback' => Util::arrayGet($config, 'userdata.callback')
+        ));
 
         // app data directory
-        $this->appdatadir = __DIR__ . '/../data';
-        $this->appdatasendfile = Util::arrayGet($config, 'appdata.sendfile');
+        $this->appdata = new Attr(array(
+            'dir' => __DIR__ . '/../data',
+            'callback' => Util::arrayGet($config, 'appdata.callback')
+        ));
 
         // Admin key
         $this->adminkey = Util::arrayGet($config, 'admin.key');
@@ -105,12 +106,11 @@ class Board
         $this->response = new Response($this);
         $this->template = new Template($this);
         $this->db = new Database($this);
+        $this->installer = new Installer($this);
         $this->cache = new Cache($this);
         $this->session = new Session($this);
+        $this->captcha = new Captcha($this);
         $this->user = new User($this);
-
-        // Get install state
-        $this->installed = $this->checkInstall();
     }
 
     /**
@@ -148,7 +148,7 @@ class Board
         // redirect to install in not already installed
         if($path[0] != 'install' && $path[0] != 'resource')
         {
-            if(!$this->installed)
+            if(!$this->installer->installed)
             {
                 $this->redirect('/install');
                 exit();
@@ -167,14 +167,6 @@ class Board
     public function timer()
     {
         return microtime(TRUE) - $this->_timer;
-    }
-
-    /**
-     * Check if the database has been installed.
-     */
-    public function checkInstall()
-    {
-        return FALSE;
     }
 
     /**

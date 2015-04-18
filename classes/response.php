@@ -166,15 +166,15 @@ class Response
         }
 
         // Determine if we are sending user or app data.
-        if(file_exists($this->board->userdir . '/' . $file))
+        if(file_exists($this->board->userdata.dir . '/' . $file))
         {
             $isuser = TRUE;
-            $filename = $this->board->userdir . '/' . $file; 
+            $filename = $this->board->userdata.dir . '/' . $file; 
         }
-        else if(file_exists($this->board->appdir . '/' . $file))
+        else if(file_exists($this->board->appdata.dir . '/' . $file))
         {
             $isuser = FALSE;
-            $filename = $this->board->appdir . '/' . $file;
+            $filename = $this->board->appdata.dir . '/' . $file;
         }
         else
         {
@@ -222,14 +222,14 @@ class Response
         // Send the file through
         while(@ob_end_flush());
 
-        if($isuser && $this->board->userdirsendfile)
+        if($isuser && $this->board->userdata.callback)
         {
-            call_user_func($this->board->userdirsendfile($file, $filename));
+            call_user_func($this->board->userdata.callback($file, $filename));
             exit();
         }
-        else if(!$isuser && $this->board->appdirsendfile)
+        else if(!$isuser && $this->board->appdata.callback)
         {
-            call_user_func($this->board->appdirsendfile($file, $filename));
+            call_user_func($this->board->appdata.callback($file, $filename));
             exit();
         }
 
