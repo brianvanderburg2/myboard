@@ -16,7 +16,7 @@ namespace MyBoard\Framework;
  * The dependency injector class
  * TODO: Document methods and variables
  */
-class Injector
+class Injector implements \ArrayAccess
 {
     protected $_parameters = array();
     protected $_services = array();
@@ -64,6 +64,12 @@ class Injector
 
         $value = $this->_parameters[$name];
         return $this->_normalizeValue($value);
+    }
+
+    public function removeParameter($name)
+    {
+        if(isset($this->_parameters[$name]))
+            unset($this->_parameters[$name]);
     }
 
     public function hasService($name)
@@ -123,6 +129,12 @@ class Injector
         return $obj;
     }
 
+    public function removeService($name)
+    {
+        if(isset($this->_services[$name]))
+            unset($this->_services[$name]);
+    }
+
     protected function _normalizeValue($value)
     {
         if($value instanceof _InjectorServiceRef)
@@ -148,6 +160,7 @@ class Injector
         }
     }
 
+    /* Methods for use in service declarations */
     public static function Parameter($name)
     {
         return new _InjectorParameterRef($name);
@@ -156,6 +169,43 @@ class Injector
     public static function Service($name)
     {
         return new _InjectorServiceRef($name);
+    }
+
+    /* Methods for ArrayAccess */
+    public function offsetExists($offset)
+    {
+        return $this->hasParameter($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->getParameter($offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->setParameter($offset, $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->removeParameter($offset);
+    }
+
+    /** Methods for direct access */
+    public function __get($name)
+    {
+        return $this->getService($name);
+    }
+
+    public function __isset($name)
+    {
+        return $this->hasService($name);
+    }
+
+    public function __unset($name)
+    {
+        $this->removeService($name);
     }
 }
 
