@@ -58,7 +58,6 @@ class Board
      */
     public function execute()
     {
-        $this->setup();
         $this->dispatch();
     }
 
