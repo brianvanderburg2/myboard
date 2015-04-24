@@ -87,13 +87,13 @@ class Board
         $config = $this->config;
 
         // user data directory
-        $this->userdata = new Attr(array(
+        $this->userdata = new Framework\Attr(array(
             'dir' => Util::arrayGet($config, 'userdata.dir'),
             'callback' => Util::arrayGet($config, 'userdata.callback')
         ));
 
         // app data directory
-        $this->appdata = new Attr(array(
+        $this->appdata = new Framework\Attr(array(
             'dir' => __DIR__ . '/../data',
             'callback' => Util::arrayGet($config, 'appdata.callback')
         ));
