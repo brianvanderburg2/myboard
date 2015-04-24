@@ -50,6 +50,7 @@ class Board
     public function __construct($config)
     {
         $this->config = $config;
+        $this->setup();
     }
 
     /**
@@ -62,9 +63,9 @@ class Board
     }
 
     /**
-     * Perform setup. Made public so it can be accessed externally.
+     * Perform setup.
      */
-    public function setup()
+    protected function setup()
     {
         // Start the timer
         $this->_timer = microtime(TRUE);
