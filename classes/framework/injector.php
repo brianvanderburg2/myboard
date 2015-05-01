@@ -28,7 +28,7 @@ namespace MyBoard\Framework;
  *    or
  *
  *    \code{.php}
- *    addArgument(Injector::Parameter("name1"))
+ *    $injector->register("service"", "Constructor", array(Injector::Parameter("name1")))
  *    \endcode
  *
  *  - Indirect reference by using a template pattern in the form of "%<name>%".
@@ -43,7 +43,7 @@ namespace MyBoard\Framework;
  *    or
  *
  *    \code{.php}
- *    addArgument("value: %name1%");
+ *    $injector->register("service", "Constructor", array("value: %name1%"))
  *    \endcode
  *
  *  The services in a container can be referenced in arguments by using the
@@ -51,7 +51,7 @@ namespace MyBoard\Framework;
  *
  *  \code{.php}
  *  $injector->register("service1", "MyServiceClass");
- *  $injector->register("service2", "MyService2Class")->addArgument(Injector::Service("service1"));
+ *  $injector->register("service2", "MyService2Class", array(Injector::Service("service1")));
  *  \endcode
  */
 class Injector implements \ArrayAccess
