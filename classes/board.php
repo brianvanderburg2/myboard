@@ -28,6 +28,7 @@ class Board
     public $config = null;
     protected $_timer = null;
 
+    public $services = null;
     public $request = null;
     public $response = null;
     public $template = null;
@@ -50,8 +51,16 @@ class Board
      */
     public function __construct($config)
     {
-        $this->config = $config;
+        $this->config = array_merge($this->defaultConfig(), $config);
         $this->setup();
+    }
+
+    /**
+     * Default board configuration
+     */
+    protected function defaultConfig()
+    {
+        return array();
     }
 
     /**
@@ -102,15 +111,27 @@ class Board
         // Admin key
         $this->adminkey = Util::arrayGet($config, 'admin.key');
 
-        // Create default objects
-        $this->request = new Request($this);
-        $this->response = new Response($this);
-        $this->template = new Template($this);
+        // Register injector objects default objects
+        $services = new Framework\Injector($this->config);
+        $this->services = $services;
+
+        $services->register('request', 'mrbavii\\Framework\\Request');
+        $services->register('response', 'mrbavii\\Framework\\Response', array(
+            Framework\Injector::Service('request')
+        ));
+        $services->register('template', 'mrbavii\\Framework\\Template', array(
+            array($this->userdata->dir . '/templates', $this->appdata->dir . '/templates'),
+            array('board' => $this),
+            '.php'
+        ));
+
         $this->db = new Database($this);
         $this->installer = new Installer($this);
-        $this->cache = new Cache($this);
-        $this->session = new Session($this);
-        $this->captcha = new Captcha($this);
+
+        $services->register('cache', 'mrbavii\\Framework\\Cache');
+        $services->register('captcha', 'mrbavii\\Framework\\Captcha');
+        $services->register('session', 'mrbavii\\Framework\\Session');
+        
         $this->user = new User($this);
     }
 
@@ -119,7 +140,7 @@ class Board
      */
     protected function dispatch()
     {
-        $pathinfo = $this->request->pathinfo;
+        $pathinfo = $this->services->request->pathinfo;
 
         // redirect if needed
         if(strlen($pathinfo) == 0)
@@ -175,7 +196,7 @@ class Board
      */
     public function notfound()
     {
-        $this->response->status(404, 'Not Found');
+        $this->services->response->status(404, 'Not Found');
         exit();
     }
 
@@ -184,7 +205,7 @@ class Board
      */
     public function url($url)
     {
-        return $this->request->entry . $url;
+        return $this->services->request->entry . $url;
     }
 
     /**
@@ -192,7 +213,7 @@ class Board
      */
     public function redirect($url)
     {
-        $this->response->redirect($this->url($url));
+        $this->services->response->redirect($this->url($url));
         exit();
     }
 
