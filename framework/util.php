@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Some utility functions
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 class Util
 {

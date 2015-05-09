@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple database access layer
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 class Database extends \PDO
 {

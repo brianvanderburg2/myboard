@@ -7,7 +7,7 @@
  * \copyright   MIT License
  */
 
-namespace MyBoard\Framework;
+namespace mrbavii\Framework;
 
 /**
  * This class is a simple attribute container.

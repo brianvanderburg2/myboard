@@ -11,7 +11,8 @@
  * action file.
  */
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
+use mrbavii\Framework;
 
 /**
  * Class representing the board state/context

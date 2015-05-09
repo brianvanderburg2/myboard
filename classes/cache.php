@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Cache class
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * Cache management class

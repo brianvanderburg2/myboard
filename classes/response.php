@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Handle sending responses back to the browser.
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * A class for sending responses back to the browser.

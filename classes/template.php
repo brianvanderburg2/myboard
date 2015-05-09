@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple php-based template system.
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 class Template
 {

@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     User class
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * This class represents the current user.

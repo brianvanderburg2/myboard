@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Session class
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * Session management class

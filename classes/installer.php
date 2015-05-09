@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     The installer for the board software
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * The installer for the board software

@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Captcha class
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * captcha management class

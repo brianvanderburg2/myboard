@@ -9,7 +9,7 @@
  * A request object handles basic parsing of requests.
  */
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * The class for handling requests.

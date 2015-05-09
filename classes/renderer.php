@@ -10,7 +10,7 @@
  * a request.
  */
 
-namespace MyBoard;
+namespace mrbavii\MyBoard;
 
 /**
  * Base renderer class.

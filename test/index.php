@@ -4,6 +4,6 @@
 require __DIR__ . '/../../bootstrap.php';
 require __DIR__ . '/config.php';
 
-$board = new MyBoard\Board($config);
+$board = new mrbavii\MyBoard\Board($config);
 $board->execute();
 
