@@ -4,14 +4,11 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Captcha class
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 /**
  * captcha management class
  */
 class Captcha
 {
-    public function __construct($board)
-    {
-    }
 }

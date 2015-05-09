@@ -4,14 +4,11 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Cache class
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 /**
  * Cache management class
  */
 class Cache
 {
-    public function __construct($board)
-    {
-    }
 }
