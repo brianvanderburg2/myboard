@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Handle sending responses back to the browser.
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 /**
  * A class for sending responses back to the browser.
@@ -13,9 +13,9 @@ class Response
 {
     protected $board;
 
-    public function __construct($board)
+    public function __construct($request)
     {
-        $this->board = board;
+        $this->request = $request;
     }
 
     /**
@@ -30,8 +30,8 @@ class Response
     /**
      * Enable caching of pages.
      *
-     * @param delta The maximum number of seconds the page should be cached.
-     * @param private If the cache should be considered private.
+     * \param delta The maximum number of seconds the page should be cached.
+     * \param private If the cache should be considered private.
      */
     public function cache($delta=0, $private=TRUE)
     {
@@ -45,12 +45,12 @@ class Response
     /**
      * Redirect to another location.
      *
-     * @param url An absolute URL either with or without the domain and
+     * \param url An absolute URL either with or without the domain and
      *  protocol.  If specified as '/path/to/file', the host, protocol,
      *  and port number will automatically be added.  If no colon is present
      *  and it does not begin with a '/', then the redirect based on the
      *  script entry point.
-     * @return This method does not return.
+     * \return This method does not return.
      */
     public function redirect($url, $code=303)
     {
@@ -130,8 +130,8 @@ class Response
     /**
      * Set the status header.
      *
-     * @param status The status to set.
-     * @param desc The description of the status.
+     * \param status The status to set.
+     * \param desc The description of the status.
      */
     public function status($status, $desc=null)
     {
@@ -149,56 +149,59 @@ class Response
         }
     }
 
+
     /**
-     * Send a file
+     * Handle If-Modified-Since headers.
+     * This function will check if the If-Modified-Headers (if set) are greater than
+     * a certain timestamp.  If so, then it will set the 304 Not Modified status
+     * and return true.  Otherwise it will set the Last-Modified header to the timestamp
+     * passed in and return false;
      *
-     * @param $file The relative path of the file to send
-     * @param $cache The time the client should cache this file
-     * @param $private Request any middle-man caches to not cache the result if true.
+     * \param $timestamp the timestamp of the content in question
+     * \return
+     *   - TRUE if the $timestamp is greater than that of the If-Modified-Since header
+     *   - TRUE if there are no If-Modified-Since headers
+     *   - FALSE if the $timestamp is not greater than that of the If-Modified-Since header
      */
-    public function sendFile($file, $cache=0, $private=FALSE)
+    public function ifModifiedSince($timestamp)
     {
-        // Security check
-        if(!Security::checkPath($file))
-        {
-            $this->board->notfound();
-            exit();
-        }
-
-        // Determine if we are sending user or app data.
-        if(file_exists($this->board->userdata.dir . '/' . $file))
-        {
-            $isuser = TRUE;
-            $filename = $this->board->userdata.dir . '/' . $file; 
-        }
-        else if(file_exists($this->board->appdata.dir . '/' . $file))
-        {
-            $isuser = FALSE;
-            $filename = $this->board->appdata.dir . '/' . $file;
-        }
-        else
-        {
-            $this->board->notfound();
-            exit();
-        }
-
         // Handle if-modified-since header
-        $file_timestamp = filemtime($filename);
         if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
         {
             $if_modified_since = strtotime(preg_replace('#;.*$#', '', $_SERVER['HTTP_IF_MODIFIED_SINCE']));
-            if($if_modified_since >= $file_timestamp)
+            if($if_modified_since >= $timestamp)
             {
                 $this->status(304, 'Not Modified');
-                exit();
+                return FALSE;
             }
         }
         
         // Set headers: Content-Type, Content-Length, Content-Disposition
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $file_timestamp));
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $timestamp));
+        return TRUE;
+    }
+
+    /**
+     * Send a file.
+     * \warning No security checks are preformed on the path here.
+     *
+     * \param $file The path of the file to send
+     * \param $cache The time the client should cache this file
+     * \param $private Request any middle-man caches to not cache the result if true.
+     */
+    public function sendFile($file, $cache=0, $private=FALSE)
+    {
+        // Handle if-modified-since header
+        $file_timestamp = filemtime($file);
+        if($this->ifModifiedSince($file_timestamp) == FALSE)
+        {
+            exit();
+        }
+        
+        // Set headers: Content-Type, Content-Length, Content-Disposition
         header('Content-Length: ' . filesize($file));
 
-        $fi = new \finfo(FILEINFO_NONE, Util::arrayGet($this->board->config, 'mime.magicfile'));
+        $fi = new \finfo(FILEINFO_NONE); // TODO: allow configuration of mime file used
         $type = $fi->file($filename, FILEINFO_MIME_TYPE);
         if($type === FALSE)
             $type = 'application/octed-stream';
@@ -213,25 +216,15 @@ class Response
         {
             $this->cache($cache, $private);
         }
-        
 
         // Only proceed if needed
-        if($this->board->request->method == 'head')
+        if($this->request->method == 'head')
             exit();
 
         // Send the file through
         while(@ob_end_flush());
 
-        if($isuser && $this->board->userdata.callback)
-        {
-            call_user_func($this->board->userdata.callback($file, $filename));
-            exit();
-        }
-        else if(!$isuser && $this->board->appdata.callback)
-        {
-            call_user_func($this->board->appdata.callback($file, $filename));
-            exit();
-        }
+        // TODO: allow configuration of a callback function to send the file.
 
         // Got here, manually send using readfile
         @readfile($filename, FALSE);

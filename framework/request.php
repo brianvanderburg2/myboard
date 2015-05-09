@@ -9,7 +9,7 @@
  * A request object handles basic parsing of requests.
  */
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 /**
  * The class for handling requests.
@@ -24,9 +24,8 @@ class Request
     /**
      * Construct the request
      *
-     * \param $board The instance of the board software.
      */
-    public function __construct($board)
+    public function __construct()
     {
         // sanitize inputs, etc
         $this->pathinfo = $this->getPathInfo();

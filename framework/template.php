@@ -4,20 +4,23 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple php-based template system.
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 class Template
 {
+    protected $path = array();
+    protected $params = array();
+    protected $ext = '.tpl';
     protected $cache = array();
-    protected $params = null;
-    protected $userdir = null;
-    protected $appdir = null;
 
-    public function __construct($board)
+    public function __construct($path=array(), $params=array(), $ext=null)
     {
-        $this->userdir = $board->userdata.dir . '/templates';
-        $this->appdir = $board->appdata.dir . '/templates';
-        $this->params = array('board' => $board);
+        $this->path = $path;
+        $this->param = $params;
+        if($ext !== null)
+        {
+            $this->ext = $ext;
+        }
     }
  
     public function send($template, $params=null, $override=FALSE)
@@ -88,15 +91,16 @@ class Template
             return $this->cache[$template];
         }
 
-        // Check user data
-        $path = $this->userdir . '/' . $template . '.php';
-        if(!file_exists($path))
+        // Check the paths
+        $path = FALSE;
+        foreach($this->path as $dir)
         {
-            // Check app data
-            $path = $this->appdir . '/' . $template . '.php';
-            if(!file_exists($path))
+            // TODO: better file checks to prevent security issues
+            $file = $dir . '/' . $template . $this->ext;;
+            if(file_exists($file))
             {
-                $path = FALSE;
+                $path = $file;
+                break;
             }
         }
 
