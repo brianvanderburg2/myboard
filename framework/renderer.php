@@ -6,24 +6,16 @@
  * \date        2015
  * \copyright   MIT License
  *
- * This class represents a base renderer object that is constructed to handle
- * a request.
+ * This class represents a renderer object that can be used to handle a request.
  */
 
-namespace mrbavii\MyBoard;
+namespace mrbavii\Framework;
 
 /**
  * Base renderer class.
  */
 class Renderer
 {
-    protected $board = null;
-
-    public function __construct($board)
-    {
-        $this->board = $board;
-    }
-
     public function render($params)
     {
         if(count($params))
@@ -33,11 +25,11 @@ class Renderer
             {
                 array_shift($params);
                 $this->$name($params);
-                return;
+                return TRUE;
             }
         }
 
-        $this->board->notfound();
+        return FALSE;
     }
 }
 
