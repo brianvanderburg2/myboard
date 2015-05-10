@@ -46,12 +46,23 @@ namespace mrbavii\Framework;
  *    $injector->register("service", "Constructor", array("value: %name1%"))
  *    \endcode
  *
- *  The services in a container can be referenced in arguments by using the
- *  Injector::Service("name") method:
+ * The services in a container can be referenced in arguments by using the
+ * Injector::Service("name") method:
  *
  *  \code{.php}
  *  $injector->register("service1", "MyServiceClass");
  *  $injector->register("service2", "MyService2Class", array(Injector::Service("service1")));
+ *  \endcode
+ *
+ * It is also possible to pass arguments to the call to getService to be used by the constructor
+ * and method calls.  However, a service added in this manor can not be accessed as an attribute
+ * of the injector class, since it requires arguments to be passed to getService.
+ *
+ *  \code{.php}
+ *  $injector->register("service", "Constructor", array(Injector::Argument(0)))
+ *           ->addMethodCall("method", array(Injector::Argument(1)))
+ *           ->setShared(FALSE);
+ *  $injector->getService("service", array($arg0, $arg1));
  *  \endcode
  */
 class Injector implements \ArrayAccess
@@ -120,9 +131,11 @@ class Injector implements \ArrayAccess
      * dependencies if needed.
      *
      * \param $name The name of the service.
+     * \param $func_args Extra arguments to pass to placeholders in the constructor
+     *        and method calls.
      * \return The instance of the service object.
      */
-    public function getService($name)
+    public function getService($name, $func_args=array())
     {
         /* Check shared cache */
         if(isset($this->_shared[$name]))
@@ -138,7 +151,7 @@ class Injector implements \ArrayAccess
         $params = array();
         foreach($service->_arguments as $arg)
         {
-            $params[] = $this->_normalizeValue($arg);
+            $params[] = $this->_normalizeValue($arg, $func_args);
         }
 
         if($service->_constructor)
@@ -160,7 +173,7 @@ class Injector implements \ArrayAccess
             $params = array();
             foreach($method->_arguments as $arg)
             {
-                $params[] = $this->_normalizeValue($arg);
+                $params[] = $this->_normalizeValue($arg, $func_args);
             }
 
             call_user_func_array(array($obj, $method->_method), $params);
@@ -256,7 +269,7 @@ class Injector implements \ArrayAccess
      *
      * \param $value The value to normalize.
      */
-    protected function _normalizeValue($value)
+    protected function _normalizeValue($value, $call_args)
     {
         if($value instanceof _InjectorServiceRef)
         {
@@ -266,12 +279,17 @@ class Injector implements \ArrayAccess
         {
             return $this->getParameter($value->name);
         }
+        else if($value instanceof _InjectorArgumentRef)
+        {
+            // TODO: if out of bounds, it does not issue a notice.
+            return $call_args[$value->name];
+        }
         else if(is_array($value))
         {
             $result = array();
             foreach($value as $key => $value2)
             {
-                $result[$key] = $this->_normalizeValue($value2);
+                $result[$key] = $this->_normalizeValue($value2, $call_args);
             }
             return $result;
         }
@@ -314,6 +332,18 @@ class Injector implements \ArrayAccess
     public static function Service($name)
     {
         return new _InjectorServiceRef($name);
+    }
+
+    /**
+     * Create a reference to an argument passed to getService.
+     *
+     * \param $index The index of the argument to getService.  The
+     *        first extra argument has an index of 0.
+     * \return The reference object for the argument.
+     */
+    public static function Argument($index)
+    {
+        return new _InjectorArgumentRef($index);
     }
 
     /* Methods for ArrayAccess */
@@ -496,4 +526,11 @@ class _InjectorServiceRef extends _InjectorRef
 class _InjectorParameterRef extends _InjectorRef
 {
 }
+
+/**
+ * Injector argument reference.
+ */
+ class _InjectorArgumentRef extends _InjectorRef
+ {
+ }
 
