@@ -51,7 +51,8 @@ class Board
      */
     public function __construct($config)
     {
-        $this->config = array_merge($this->defaultConfig(), $config);
+        $this->config = new Framework\Config($this->defaultConfig());
+        $this->config->merge($config);
         $this->setup();
     }
 
@@ -98,18 +99,18 @@ class Board
 
         // user data directory
         $this->userdata = new Framework\Attr(array(
-            'dir' => Util::arrayGet($config, 'userdata.dir'),
-            'callback' => Util::arrayGet($config, 'userdata.callback')
+            'dir' => $config->get('userdata.dir'),
+            'callback' => $config->get('userdata.callback')
         ));
 
         // app data directory
         $this->appdata = new Framework\Attr(array(
             'dir' => __DIR__ . '/../data',
-            'callback' => Util::arrayGet($config, 'appdata.callback')
+            'callback' => $config->get('appdata.callback')
         ));
 
         // Admin key
-        $this->adminkey = Util::arrayGet($config, 'admin.key');
+        $this->adminkey = $config->get('admin.key');
 
         // Register injector objects default objects
         $services = new Framework\Injector($this->config);
