@@ -1,3 +1,69 @@
+Framework
+    Object in the framework are general purpose and reuseable.
+    A config object exists that can be passed to each needed object.
+    This config object can allow configuration of the application as well
+    as framework specific configuration:
+
+    framework.<config> - Configuration for the framework
+    <app>.<config> - Configuration for the applications:
+
+    This will allow configuration of various things:
+
+    board data files:
+
+
+        myboard.upload.dir
+        myboard.upload.url (if set, then request of downloads will redirect to the URL
+            instead of using the downloader.  If unset, the downloader will be used instead)
+        myboard.userdata.dir
+        myboard.userdata.url - If set, redirect.  Some resources will always use the downloader
+        myboard.appdata.url - If set, redirect.  Some resources will always use the downloader
+
+        Accessed as (userdata/appdata) /resources/... (uploads) /download/...
+        The following content will always use the downloader, so that relative paths
+        will be to /resources/ and won't get broken by a redirect to different locations:
+
+            If a CSS file uses import("blah.css") and is accessed as /resources/css/test.css
+            then it will get /resoruces/css/blah.css.  But if it is redirect to
+            /appdata-url/css/test.css, it will try to load /appdata-url/css/blah.css, even if
+            a user override /userdata-url/css/blah.css exists.  So keeping it being the /resources
+            by using the downloader instead of redirecting allows userdata to override individual
+            appdata files.
+
+            Files to always download: css, js, xml, etc.
+            Files can be redirected: images, uploads, etc
+
+
+    Framework downloader
+
+        framework.download.method
+        framework.download.<method opts>
+
+        xsendfile
+        nginx (X-Accel-Redirect)
+            prefixes =array(array("path prefix", "internal redirect prefix"), ...)
+                    array("/path/to/publidata', "/public-internal"), etc
+        direct  (uses readfile or something)
+
+Framework config object is basically an array container with some utility methods
+and can allow merging other data in.  Config gets passed to the board.  Board
+merged config in with default config, and may override some items by merging it in
+to the result:
+
+    __construct($config):
+        $this->config = $this->defaultConfig(); // set defaults
+        $this->config->merge($config); // merge app config
+        $this->config->merge($this->overrideConfig()); // override some values
+
+This config object is passed to various objects in the framework and board.  If using
+the injector, then this can be specified as follows:
+    $injector->registor('downloader', 'mrbavii\\Framework\\Downloader', array($this->config));
+
+    Request($config) // parses request from various php variables
+    Response($config, $request) // Create a response for a request
+    
+
+
 Particular use cases
 
     Create the board object:
