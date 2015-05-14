@@ -450,7 +450,6 @@ class App
     {
         $request = $this->getService('request');
         $path = $request->path;
-
         // Redirect to index if needed
         if(count($path) == 0)
         {
@@ -639,6 +638,12 @@ class _AppRef
  */
 class _AppServiceRef extends _AppRef
 {
+    public $arguments = array();
+    public function __construct($name, $arguments=array())
+    {
+        parent::__construct($name);
+        $this->arguments = $arguments;
+    }
 }
 
 /**
