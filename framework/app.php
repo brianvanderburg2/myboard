@@ -74,7 +74,7 @@ class App
                 return $this->errorHandler($a, $b, $c, $d, $e);
             });
 
-            set_exception_handler($function($e) {
+            set_exception_handler(function($e) {
                 return $this->exceptionHandler($e);
             });
         }
@@ -84,7 +84,7 @@ class App
             error_reporting(E_ALL);
         }
 
-        if($this->getConfig('app.error.show_user', FALSE)
+        if($this->getConfig('app.error.show_user', FALSE))
         {
             ini_set('display_errors', 'on');
         }
@@ -108,6 +108,17 @@ class App
         registerService('session', ...);
         registerService('template', ...);
         */
+
+        // dispatcher
+        $this->registerService('dispatcher', '%app.dispatcher.class%', array($this));
+
+        // request
+        $this->registerService('request', __NAMESPACE__ . '\\Request');
+
+        // response
+        $this->registerService('response', __NAMESPACE__ . '\\Response', array(
+            App::ServiceRef('request')
+        ));
     }
 
     /**
@@ -198,11 +209,13 @@ class App
 
         if($service->constructor)
         {
-            $obj = call_user_func_array($service->constructor, $params);
+            $cons = $this->normalizeValue($service->constructor, $func_args);
+            $obj = call_user_func_array($cons, $params);
         }
         else
         {
-            $reflection = new \ReflectionClass($service->class);
+            $cls = $this->normalizeValue($service->class, $func_args);
+            $reflection = new \ReflectionClass($cls);
             $obj = $reflection->newInstanceArgs($params);
         }
 
@@ -317,11 +330,17 @@ class App
      *
      * \param $value The value to normalize.
      */
-    protected function normalizeValue($value, $call_args)
+    protected function normalizeValue($value, $call_args=array())
     {
         if($value instanceof _AppServiceRef)
         {
-            return $this->getService($value->name);
+            // pass arguments to getService if specified
+            $args = array();
+            foreach($value->arguments as $arg)
+            {
+                $args[] = $this->normalizeValue($arg, $call_args);
+            }
+            return $this->getService($value->name, $args);
         }
         else if($value instanceof _AppConfigRef)
         {
@@ -430,7 +449,7 @@ class App
     public function execute()
     {
         $request = $this->getService('request');
-        $path = $request->getPath();
+        $path = $request->path;
 
         // Redirect to index if needed
         if(count($path) == 0)
@@ -448,7 +467,7 @@ class App
         // Check the path components
         foreach($path as $part)
         {
-            if(strlen($parth) == 0 || !Security::checkPathComponent($part))
+            if(strlen($part) == 0 || !Security::checkPathComponent($part))
             {
                 $this->errorPage($request, 404);
                 exit();
@@ -456,14 +475,18 @@ class App
         }
 
         // Dispatch
-        $this->dispatch($request);
+        if($this->dispatch($request, $request->path) == FALSE)
+        {
+            $this->errorPage($request, 404);
+        }
+
         exit();
     }
 
     /**
      * Handle dispatching for a particular request after checks have been made.
      */
-    protected function dispatch($request)
+    protected function dispatch($request, $path)
     {
         // A derived app can override this.  Here we directly create dispatcher
         // based on service configuration. (Uses 'dispatcher' service, which
@@ -471,10 +494,7 @@ class App
         // dispatcher
 
         $obj = $this->getService('dispatcher');
-        if($obj->dispatch($request) === FALSE)
-        {
-            $this->errorPage($request, 404);
-        }
+        return $obj->dispatch($request, $path);
     }
 
     /**

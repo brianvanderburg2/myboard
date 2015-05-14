@@ -17,6 +17,7 @@ namespace mrbavii\Framework;
 class Request
 {
     public $pathinfo = null; /**< \brief The PATHINFO of the request */
+    public $path = null; /**< \brief The array of path parts. */
     public $method = null; /**< \brief The method of the request.  \see getMethod */
     public $entry = null; /**< \brief The PHP entry point of the request */
 
@@ -27,10 +28,19 @@ class Request
      */
     public function __construct()
     {
-        // sanitize inputs, etc
+        // Path info and path
         $this->pathinfo = $this->getPathInfo();
+
+        $this->path = explode('/', $this->pathinfo);
+        if(count($this->path) && strlen($this->path[0]) == 0)
+        {
+            array_shift($this->path); // remove first part since path info starts with '/'
+        }
+
+        // sanitize inputs, etc
         $this->method = $this->getMethod();
         $this->entry = $this->getEntryPoint();
+
     }
 
     /**

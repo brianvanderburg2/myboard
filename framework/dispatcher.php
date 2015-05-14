@@ -30,20 +30,15 @@ class Dispatcher
     /**
      * Dispatch to a certain path.
      */
-    public function dispatch($request, $path=null)
+    public function dispatch($request, $path)
     {
-        if($path === null)
-        {
-            $path = $request->getPath();
-        }
-
         if(count($path))
         {
             $name = 'dispatch_' . $path[0];
-            if($method_exists($this, $name))
+            if(method_exists($this, $name))
             {
                 array_shift($path);
-                return {$this->$name}($request, $path);
+                return $this->$name($request, $path);
             }
         }
 

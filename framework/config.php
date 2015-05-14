@@ -18,17 +18,22 @@ class Config implements \ArrayAccess
     /**
      * Construct the configuration
      *
-     * \param $config Initial configuration.
+     * \param ...$config Configuration items, merged in left to right.
      */
-    public function __construct($config=array())
+    public function __construct()
     {
-        if($config instanceof Config)
+        $this->_config = array();
+        $configs = func_get_args();
+        foreach($configs as $config)
         {
-            $this->_config = $config->_config;
-        }
-        else
-        {
-            $this->_config = $config;
+            if($config instanceof Config)
+            {
+                $this->_config = array_merge($this->_config, $config->_config);
+            }
+            else
+            {
+                $this->_config = array_merge($this->_config, $config);
+            }
         }
     }
 
