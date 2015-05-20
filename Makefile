@@ -29,6 +29,7 @@ tarball:
 docs:
 	mkdir -p output
 	doxygen
+	-rm output/doc/doxygen_sqlite3.db
 
 # Cleanup
 .PHONY: clean
