@@ -1,3 +1,177 @@
+/**
+\page page_ideas Ideas
+\verbatim
+
+Framework Database
+    NOT a vendor abstraction layer, just some wrappers.
+    Originally planned to derive from PDO, but now contain PDO instead
+    This means means we will have:
+
+    Database class
+    DatabaseStatement class (can be in same file since it should never be
+     used externally)
+
+    __construct($app) # App contains getConfig
+
+    connect($direct_config)
+    connection($name)
+
+    $db = new Database($app)
+    $db->connection(); # gets name from 'database.default', then uses 'database.connections.$name'
+        'dsn' PDO dsn
+        'username'
+        'password'
+        'options'
+        'prefix' Table prefix (stored as $db->prefix
+    $db->connect($direct)
+
+    $db->exec (wraps PDO->exec)
+    $db->prepare (wrap PDO->prepare, return Statement)
+    $db->execfile
+    $db->lastInsertId
+
+
+Framework App Class
+    An application class
+        Has configuration (both for the application as well as for the framework)
+        Has services (again, both for the application as well as for the framework)
+        Has routing/processing
+
+    methods:
+
+        class MyApp extends App
+            __construct($config)
+                parent::__construct($config)
+
+    defaultConfig() { }
+        Set up the default configuration
+    defaultServices() {}
+        Set up the default services
+
+    __construct($config)
+        Construct the application object
+        Base will merge passed config in with default config and set up some
+        default services.  Derived app can replace those services/etc.
+
+    App::__construct($config)
+        self::$instance = $this;
+        $this->defaultConfig()
+        $this->defaultServices()
+
+    Derived::__construct($config)
+        
+        
+
+
+Caching
+    Cache wrapper will provide
+        set($group, $name, $value)
+        get($group, $name, $defval)
+        remember($group, $name, $value)
+            Fancy (if not set, set and return value, else return current value)
+        exists($group, $name)
+        clear($group, $name=null)
+        invalidate($group)
+
+    Each group will have a group invalidation timestamp.
+    When setting a value, the now() timestamp is stored with that value
+    When getting a value:
+        if the group timestamp does not exist
+            group is invalidated
+            default is returned
+        else if value does exist
+            if group timestamp is greater than value timestamp (this means the group was invalidated)
+                default is returned (or FALSE for exists)
+            else
+                value is returned (or TRUE for exists)
+        else
+            defval is returned (or FALSE) for exists
+    Invalidating a group
+        set group timestamp to now()
+
+    Timestamps are stored using UTC, to avoid any problems with daylight savings corrections.
+    However, if the clock is changed outside of such settings, it may result in problems:
+
+        set permissions value at 12:59
+        clock is set back 10 minutes (12:49)
+        a minute later, invalidate permissions cache (12:50)
+        get permissions value (valid, since 12:59 is after last permissions invalidation at 12:50)
+
+    Solutions:
+        Any time a clock change occurs that will affect the UTC value of the clock, reset the 
+        cache server.
+        If a specific cache driver for a specific cache server supports the notion of groups
+        of values, use that to clear all values in that group)
+        If neither of these are desired, any time a group is invalidated, flush all keys
+        of the caceh server.
+
+Permissions
+
+    Sections
+        A section can have one or more topics
+        A section can have one or more sections
+
+    section
+        id
+        parent
+        inherit (whether or not to inherit permissions from parent)
+        ...
+
+    Permissions
+        A permission is associated with a group and the section
+
+    permission
+        id
+        group (group that this set of permissions applies to)
+        section (section that this group of permissions applies to)
+        ...
+
+Determining permissions:
+    Order: ? -> Y -> N
+    Direct overrides inherited
+
+    // Determine which sections to apply permissions for
+    sections = [sectionid]
+    current = sectionid
+    while current.inherit and current.parent != null;
+        current = current.parent
+        sections[] = current
+
+    // For each section from current to top, determine permissions for current user
+    perms = []
+    foreach sections as section:
+        secperms = []
+        foreach user.groups as group:
+            curperms = get permissions from (group, section), may be cached
+            if first
+                secperms = curperms
+            else
+                secperms = merge_perms(secperms, curperms)
+        if first
+            perms = secperms
+        else
+            perms = merge_parent(perms, secperms)
+
+    // cache result in "permissions" group
+    $cache->store("permissions", "$uid-$secid", $perms)
+
+merge_perms(current, merge)
+    Merge "merge" into "current", returning the result
+    ? can become Y or N
+    Y can become N
+
+merge_parent(current, parent)
+    Merge "parent" into "current"
+    ? can become Y or N (if something was not set directly in the child, parent overrides it)
+    Y or N stay what they are in current (parent doesn't override explicit permissions in a child section)
+
+Other perms may need to be normalized, such s
+    allowed bbcodes
+    attachement sizes (merge_perms uses smallest of all groups, -1 means unset
+                       merge_parent only sets if current is -1, else keeps current value)
+    etc
+    Foreach
+
 Framework
     Object in the framework are general purpose and reuseable.
     A config object exists that can be passed to each needed object.
@@ -183,7 +357,7 @@ Database
     Target MySQL/MariaDB
     execfile
         Execute an external sql file
-        Need to read file in, replace table prefix, and exec line
+        Need to read file in, replace table prefix and other contents, and exec line
         Each line is a command unless
             Starts with a # (ignored)
             Starts with whitespace (continuation of previous line)
@@ -305,3 +479,8 @@ Tables
 
 
 
+
+
+\endverbatim
+
+*/

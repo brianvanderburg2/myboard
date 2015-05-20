@@ -1,0 +1,56 @@
+/**
+\page page_readme Readme
+
+MyBoard - Copyright (C) 2015 Brian Allen Vanderburg II
+
+MyBoard is a personal board/forum meant to be used either by itself or aside
+an existing website.  It is primarily intended for use by myself, however is
+made available in case anyone else is interested.  It is not to be confused with
+MyBB, which is also a forum software.
+
+\section readme_features Features
+
+\section readme_config Configuration
+
+Various classes fo the framework and board can be configured by the configuration
+passed to the \ref mrbavii::Framework::App "App" construction.  This section describes the configuration values
+that are available.
+
+\subsection readme_config_framework Framework
+
+ - \b app.dispatcher.index \n
+   The index page.  If there is no path information, this is the default
+   path information to redirect to. \n
+   DEFAULT: "/index"
+ - \b app.dispatcher.class \n
+   The root dispatcher class.  If the derived application does not override
+   the dispatch method, the internal dispatch method get the dispatch service
+   which uses this configuration as the class name. \n
+ - \b app.error.enable_handler \n
+   Whether to enable the internal error handlers or not.  If set, then errors
+   and exceptions will be handled by App::errorHandler and App::exceptionHandler. \n
+   DEFAULT: FALSE
+ - \b app.error.report_all \n
+   Whether to set error reporting to E_ALL.  If FALSE, the error reporting is
+   not changed. \n
+   DEFAULT: TRUE
+ - \b app.error.show_user \n
+   If TRUE, display_errors will be turned on, otherwise it will be turned off. \n
+   DEFAULT: FALSE
+ - \b app.appdata.dir \n
+   The data directory for application data files.  Used by default services
+   such as Template \n
+ - \b app.userdata.dir \n
+   The data directory for user data files.  Used by default services such
+   as Template \n
+ - \b app.sendfile.method \n
+   The method to use to send files to the client. \n
+   DEFAUL: "readfile"
+ - \b app.sendfile.options \n
+   Options to pass to the file reader.
+
+\subsection readme_config_board Board
+
+ - \b app.dispatcher.class \n
+   DEFAULT: "mrbavii\Board\Dispatchers\Main"
+*/
