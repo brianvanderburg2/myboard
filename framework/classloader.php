@@ -84,9 +84,9 @@ class _ClassLoaderEntry
         // Remove the registered namespace portion
         $classname = substr($classname, $len);
 
-        // Determine the filename portion
+        // Determine the filename portion. Do not replace '_'
         $filename = $this->dir . DIRECTORY_SEPARATOR .
-                    strtolower(str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $classname)) .
+                    strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $classname)) .
                     $this->ext;
 
         // Load the file and indicate that we handled it
