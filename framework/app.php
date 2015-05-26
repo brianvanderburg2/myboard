@@ -110,7 +110,9 @@ class App
         */
 
         // dispatcher
-        $this->registerService('dispatcher', '%app.dispatcher.class%', array($this));
+        $this->registerService('dispatcher', '%app.dispatcher.class%', array(
+            $this
+        ));
 
         // request
         $this->registerService('request', __NAMESPACE__ . '\\Request');
@@ -118,6 +120,11 @@ class App
         // response
         $this->registerService('response', __NAMESPACE__ . '\\Response', array(
             App::ServiceRef('request')
+        ));
+
+        // database
+        $this->registerService('database', __NAMESPACE__ . '\\Database\\Manager', array(
+            $this
         ));
     }
 

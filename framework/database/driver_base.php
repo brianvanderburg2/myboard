@@ -13,7 +13,7 @@ namespace mrbavii\Framework\Database;
 /**
  * Base driver object 
  */
-class Driver_base
+abstract class Driver_base
 {
     protected $app;
     protected $config;
@@ -150,10 +150,10 @@ class Driver_base
      *  the serial column is specified, then there is no need to use this function as the
      *  value of that column was known during the insert.
      */
-    abstract public function lastInsertId($table=null, $column=null);
+    abstract public function lastInsertId();
 
     /**
-     * Quote a value
+     * Quote a value.
      *
      * \param $string The value to quote
      * \return The value quoted for the database.

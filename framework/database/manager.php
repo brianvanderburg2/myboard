@@ -20,6 +20,8 @@ class Manager
 
     /**
      * Construct the database manager.
+     *
+     * \param $app An instance of the application object.
      */
     public function __construct($app)
     {
