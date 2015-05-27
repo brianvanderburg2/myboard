@@ -13,7 +13,7 @@ namespace mrbavii\Framework\Database;
 /**
  * Base driver object 
  */
-abstract class Driver_base
+abstract class Driver
 {
     protected $app;
     protected $config;
@@ -64,8 +64,6 @@ abstract class Driver_base
     {
         return isset($this->config['prefix']) ? $this->config['prefix'] : '';
     }
-
-    // Table information
 
     /**
      * Get the tables of the database.
@@ -141,16 +139,10 @@ abstract class Driver_base
     /**
      * Determine the last row id of the last inserted object
      *
-     * \param $table - If needed, this specifies the table of the last inserted row id
-     * \param $column - If needed, this specifies the column that contains the row id
-     *
-     * \note The parameters are mainly for pgsql, which will normally create a sequence
-     *  specially for the serial column of the table and will, in those cases, only
-     *  work when the serial column is not specified during the insert.  Of course, if
-     *  the serial column is specified, then there is no need to use this function as the
-     *  value of that column was known during the insert.
+     * \param $seq - The sequence to use in getting the id.
+     * \return The id of the last inserted row.
      */
-    abstract public function lastInsertId();
+    abstract public function lastInsertId($seq=null);
 
     /**
      * Quote a value.

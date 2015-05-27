@@ -8,7 +8,7 @@
  */
 
 
-namespace mrbavii\Framework\Database
+namespace mrbavii\Framework\Database;
 
 /**
  * A database manager class
@@ -81,10 +81,10 @@ class Manager
         }
         
         $driver = $config['driver'];
-        $driver_class = __NAMESPACE__ . '\\Database\\Driver_' . $driver;
-        if(class_exists($helper_class))
+        $driver_class = __NAMESPACE__ . '\\Driver_' . $driver;
+        if(class_exists($driver_class))
         {
-            return $helper_class($app, $config);
+            return new $driver_class($this->app, $config);
         }
         else
         {

@@ -13,7 +13,7 @@ namespace mrbavii\Framework\Database;
 /**
  * PDO driver object
  */
-abstract class Driver_pdo extends Driver_base
+abstract class Driver_pdo extends Driver
 {
     protected $pdo = null;
 
@@ -140,6 +140,7 @@ abstract class Driver_pdo extends Driver_base
                 $query = $this->prepare($statement);
                 $query->execute($params);
                 return $query;
+            }
         }
         catch(\PDOException $e)
         {
@@ -161,11 +162,11 @@ abstract class Driver_pdo extends Driver_base
     }
 
     // Information
-    public function lastInsertId()
+    public function lastInsertId($seq=null)
     {
         try
         {
-            return $this->pdo->lastInsertId();
+            return $this->pdo->lastInsertId($seq);
         }
         catch(\PDOException $e)
         {

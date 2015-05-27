@@ -13,7 +13,7 @@ namespace mrbavii\Framework\Database;
 /**
  * PDO database query
  */
-class Query_pdo
+class Query_pdo extends Query
 {
     protected $pdo = null;
     protected $stmt = null;
@@ -24,18 +24,6 @@ class Query_pdo
 
         $this->pdo = $pdo;
         $this->stmt = $stmt;
-    }
-
-    public function close()
-    {
-        try
-        {
-            $this->pdo->closeCursor();
-        }
-        catch(\PDOException $e)
-        {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
-        }
     }
 
     public function fetch()
@@ -55,6 +43,18 @@ class Query_pdo
         try
         {
             return $this->stmt->fetchAll(\PDO::FETCH_BOTH);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+    
+    public function close()
+    {
+        try
+        {
+            $this->stmt->closeCursor();
         }
         catch(\PDOException $e)
         {
@@ -86,15 +86,16 @@ class Query_pdo
         }
     }
 
-    public function lastInsertId()
+    public function lastInsertId($seq=null)
     {
         try
         {
-            return $this->pdo->lastInsertId();
+            return $this->pdo->lastInsertId($seq);
         }
         catch(\PDOException $e)
         {
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
+    }
 }
 
