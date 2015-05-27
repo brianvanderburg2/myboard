@@ -78,14 +78,6 @@ abstract class Driver
     abstract public function getColumns($table);
 
     /**
-     * Get the create statement for a table.
-     *
-     * \param $table The name of the table.
-     * \return A string representing the create statement for a table.
-     */
-    abstract public function getCreate($table);
-
-    /**
      * Determine if the database is in a transaction.
      *
      * \return TRUE if a transaction is in progress, otherwise FALSE

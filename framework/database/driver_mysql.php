@@ -15,7 +15,7 @@ namespace mrbavii\Framework\Database;
  */
 class Driver_mysql extends Driver_pdo
 {
-
+    // Constructor
     public function __construct($config)
     {
         // Prepare the DSN
@@ -47,16 +47,32 @@ class Driver_mysql extends Driver_pdo
         $this->pdo->exec("SET COLLATION_CONNECTION = 'utf8_unicode_ci'");
     }
 
+    // Get the list of tables
     public function getTables()
     {
+        $results = array();
+
+        $query = $this->query("SHOW TABLES");
+        while(($result = $query->fetch()) !== FALSE)
+        {
+            $results[] = $result[0];
+        }
+
+        return $results;
     }
 
+    // Get the list of columns for a table
     public function getColumns($table)
     {
-    }
+        $results = array();
 
-    public function getCreate($table)
-    {
+        $query = $this->query("SHOW COLUMNS FROM `$table`");
+        while(($result = $query->fetch()) !== FALSE)
+        {
+            $results[] = $result[0];
+        }
+
+        return $results;
     }
 }
 
