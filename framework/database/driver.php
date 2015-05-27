@@ -15,19 +15,16 @@ namespace mrbavii\Framework\Database;
  */
 abstract class Driver
 {
-    protected $app;
     protected $config;
     protected $attr;
 
     /**
      * Construct the database driver
      *
-     * \param $app The application instance.
      * \param $config The database configuration.
      */
-    public function __construct($app, $config)
+    public function __construct($config)
     {
-        $this->app = $app;
         $this->config = $config;
         $this->attr = array();
     }

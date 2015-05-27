@@ -16,7 +16,7 @@ namespace mrbavii\Framework\Database;
 class Driver_mysql extends Driver_pdo
 {
 
-    public function __construct($app, $config)
+    public function __construct($config)
     {
         // Prepare the DSN
         $dsn = 'mysql:';
@@ -35,7 +35,7 @@ class Driver_mysql extends Driver_pdo
 
         // Establish connection
         $config['dsn'] = $dsn;
-        parent::__construct($app, $config);
+        parent::__construct($config);
 
         // Enable foreign key constraints
         $this->pdo->exec('SET foreign_key_checks = 1');

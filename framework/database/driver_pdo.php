@@ -18,7 +18,7 @@ abstract class Driver_pdo extends Driver
     protected $pdo = null;
 
     // Construct the PDO connection
-    public function __construct($app, $config)
+    public function __construct($config)
     {
         // Make sure DSN is specified
         if(!isset($config['dsn']))
@@ -40,7 +40,7 @@ abstract class Driver_pdo extends Driver
         $config['options'] = $options;
 
         // Construct parent
-        parent::__construct($app, $config);
+        parent::__construct($config);
 
         // Connect
         try

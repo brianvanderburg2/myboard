@@ -84,7 +84,7 @@ class Manager
         $driver_class = __NAMESPACE__ . '\\Driver_' . $driver;
         if(class_exists($driver_class))
         {
-            return new $driver_class($this->app, $config);
+            return new $driver_class($config);
         }
         else
         {
