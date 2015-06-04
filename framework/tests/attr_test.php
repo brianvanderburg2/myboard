@@ -15,7 +15,6 @@ require __DIR__ . "/bootstrap.php";
 
 /**
  * Unit test for mrbavii\Framework\Tests
- * @runTestsInSeparateProcess
  */
 class AttrTest extends \PHPUnit_Framework_TestCase
 {
