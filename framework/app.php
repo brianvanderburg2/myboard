@@ -195,7 +195,7 @@ class App
      *        and method calls.
      * \return The instance of the service object.
      */
-    public function getService($name, $func_args=array())
+    public function getService($name)
     {
         /* Check shared cache */
         if(isset($this->shared[$name]))
@@ -211,17 +211,17 @@ class App
         $params = array();
         foreach($service->arguments as $arg)
         {
-            $params[] = $this->normalizeValue($arg, $func_args);
+            $params[] = $this->normalizeValue($arg);
         }
 
         if($service->constructor)
         {
-            $cons = $this->normalizeValue($service->constructor, $func_args);
+            $cons = $this->normalizeValue($service->constructor);
             $obj = call_user_func_array($cons, $params);
         }
         else
         {
-            $cls = $this->normalizeValue($service->class, $func_args);
+            $cls = $this->normalizeValue($service->class);
             $reflection = new \ReflectionClass($cls);
             $obj = $reflection->newInstanceArgs($params);
         }
@@ -236,7 +236,7 @@ class App
             $params = array();
             foreach($method->arguments as $arg)
             {
-                $params[] = $this->normalizeValue($arg, $func_args);
+                $params[] = $this->normalizeValue($arg);
             }
 
             call_user_func_array(array($obj, $method->method), $params);
@@ -337,33 +337,22 @@ class App
      *
      * \param $value The value to normalize.
      */
-    protected function normalizeValue($value, $call_args=array())
+    protected function normalizeValue($value)
     {
         if($value instanceof _AppServiceRef)
         {
-            // pass arguments to getService if specified
-            $args = array();
-            foreach($value->arguments as $arg)
-            {
-                $args[] = $this->normalizeValue($arg, $call_args);
-            }
-            return $this->getService($value->name, $args);
+            return $this->getService($value->name);
         }
         else if($value instanceof _AppConfigRef)
         {
             return $this->getConfig($value->name);
-        }
-        else if($value instanceof _AppArgumentRef)
-        {
-            // \todo if out of bounds, it does not issue a notice.
-            return $call_args[$value->name];
         }
         else if(is_array($value))
         {
             $result = array();
             foreach($value as $key => $value2)
             {
-                $result[$key] = $this->normalizeValue($value2, $call_args);
+                $result[$key] = $this->normalizeValue($value2);
             }
             return $result;
         }
@@ -397,7 +386,6 @@ class App
         return new _AppConfigRef($name);
     }
 
-
     /**
      * Create a reference to another service.
      *
@@ -407,18 +395,6 @@ class App
     public static function ServiceRef($name)
     {
         return new _AppServiceRef($name);
-    }
-
-    /**
-     * Create a reference to an argument passed to getService.
-     *
-     * \param $index The index of the argument to getService.  The
-     *        first extra argument has an index of 0.
-     * \return The reference object for the argument.
-     */
-    public static function ArgumentRef($index)
-    {
-        return new _AppArgumentRef($index);
     }
 
     /* Shutdown and error handlers
@@ -645,12 +621,6 @@ class _AppRef
  */
 class _AppServiceRef extends _AppRef
 {
-    public $arguments = array();
-    public function __construct($name, $arguments=array())
-    {
-        parent::__construct($name);
-        $this->arguments = $arguments;
-    }
 }
 
 /**
@@ -659,12 +629,5 @@ class _AppServiceRef extends _AppRef
 class _AppConfigRef extends _AppRef
 {
 }
-
-/**
- * App argument reference.
- */
- class _AppArgumentRef extends _AppRef
- {
- }
 
 
