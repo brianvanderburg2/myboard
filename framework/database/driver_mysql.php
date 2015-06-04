@@ -37,14 +37,21 @@ class Driver_mysql extends Driver_pdo
         $config['dsn'] = $dsn;
         parent::__construct($config);
 
-        // Enable foreign key constraints
-        $this->pdo->exec('SET foreign_key_checks = 1');
-        // SERIALIZABLE isolation level
-        $this->pdo->exec('SET TRANSACTION ISOLATION_LEVEL SERIALIZABLE');
-        // Set UTF-8
-        $this->pdo->exec("SET NAMES 'utf8'");
-        $this->pdo->exec("SET CHARACTER SET utf8");
-        $this->pdo->exec("SET COLLATION_CONNECTION = 'utf8_unicode_ci'");
+        try
+        {
+            // Enable foreign key constraints
+            $this->pdo->exec('SET foreign_key_checks = 1');
+            // SERIALIZABLE isolation level
+            $this->pdo->exec('SET TRANSACTION ISOLATION_LEVEL SERIALIZABLE');
+            // Set UTF-8
+            $this->pdo->exec("SET NAMES 'utf8'");
+            $this->pdo->exec("SET CHARACTER SET utf8");
+            $this->pdo->exec("SET COLLATION_CONNECTION = 'utf8_unicode_ci'");
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     // Get the list of tables
