@@ -36,7 +36,7 @@ docs:
 clean:
 	rm -r output
 
-# Test
+# Test server
 .PHONY: test
 test: CONFIG=test/config.php
 test: PORT=8080
@@ -47,3 +47,9 @@ test:
 	cp $(CONFIG) output/test/config.php
 	php -S $(HOST):$(PORT) -t output/test
 
+
+# Tests (unit tests)
+.PHONY: tests
+tests: PHPUNIT_OPTS:=--test-suffix _test.php
+tests:
+	phpunit $(PHPUNIT_OPTS) framework/tests/
