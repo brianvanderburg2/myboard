@@ -14,7 +14,7 @@ use mrbavii\Framework\Attr;
 require __DIR__ . "/bootstrap.php";
 
 /**
- * Unit test for mrbavii\Framework\Tests
+ * Unit test for mrbavii\Framework\Attr
  */
 class AttrTest extends \PHPUnit_Framework_TestCase
 {
