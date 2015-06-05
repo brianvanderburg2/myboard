@@ -59,7 +59,7 @@ abstract class Driver
      */
     public function getPrefix()
     {
-        return isset($this->config['prefix']) ? $this->config['prefix'] : '';
+        return isset($this->config["prefix"]) ? $this->config["prefix"] : "";
     }
 
     /**

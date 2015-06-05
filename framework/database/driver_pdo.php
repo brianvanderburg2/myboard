@@ -21,23 +21,23 @@ abstract class Driver_pdo extends Driver
     public function __construct($config)
     {
         // Make sure DSN is specified
-        if(!isset($config['dsn']))
+        if(!isset($config["dsn"]))
         {
-            throw new Exception('No DSN specified');
+            throw new Exception("No DSN specified");
         }
 
         // Get information
-        $dsn = $config['dsn'];
-        $username = isset($config['username']) ? $config['username'] : null;
-        $password = isset($config['password']) ? $config['password'] : null;
-        $options = isset($config['options']) ? $config['options'] : array();
+        $dsn = $config["dsn"];
+        $username = isset($config["username"]) ? $config["username"] : null;
+        $password = isset($config["password"]) ? $config["password"] : null;
+        $options = isset($config["options"]) ? $config["options"] : array();
 
         $options = array_merge($options, array(
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
         ));
 
         // Update config
-        $config['options'] = $options;
+        $config["options"] = $options;
 
         // Construct parent
         parent::__construct($config);

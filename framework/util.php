@@ -26,12 +26,12 @@ class Util
         return parse_ini_file($filename, TRUE);
     }
 
-    public static function guid($namespace='')
+    public static function guid($namespace="")
     {
         // TODO: use uuid_create also if available
-        if(function_exists('com_create_guid'))
+        if(function_exists("com_create_guid"))
         {
-            return trim(com_create_guid(), '{}');
+            return trim(com_create_guid(), "{}");
         }
         else
         {
@@ -39,30 +39,30 @@ class Util
         }
     }
 
-    public static function internalGuid($namespace='')
+    public static function internalGuid($namespace="")
     {
         // This code comes from http://php.net/manual/en/function.uniqid.php
         // Curly brackets are not included
-        static $guid = '';
+        static $guid = "";
 
         $uid = uniqid("", true);
         $data = $namespace;
-        $data .= $_SERVER['REQUEST_TIME'];
-        $data .= $_SERVER['HTTP_USER_AGENT'];
-        $data .= $_SERVER['LOCAL_ADDR'];
-        $data .= $_SERVER['LOCAL_PORT'];
-        $data .= $_SERVER['REMOTE_ADDR'];
-        $data .= $_SERVER['REMOTE_PORT'];
+        $data .= $_SERVER["REQUEST_TIME"];
+        $data .= $_SERVER["HTTP_USER_AGENT"];
+        $data .= $_SERVER["LOCAL_ADDR"];
+        $data .= $_SERVER["LOCAL_PORT"];
+        $data .= $_SERVER["REMOTE_ADDR"];
+        $data .= $_SERVER["REMOTE_PORT"];
 
-        $hash = strtoupper(hash('ripemd128', $uid . $guid . md5($data)));
+        $hash = strtoupper(hash("ripemd128", $uid . $guid . md5($data)));
         $guid = substr($hash,  0,  8) .
-            '-' .
+            "-" .
             substr($hash,  8,  4) .
-            '-' .
+            "-" .
             substr($hash, 12,  4) .
-            '-' .
+            "-" .
             substr($hash, 16,  4) .
-            '-' .
+            "-" .
             substr($hash, 20, 12);
 
         return $guid;

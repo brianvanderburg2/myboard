@@ -68,7 +68,7 @@ class App
             return $this->shutdownHandler();
         });
 
-        if($this->getConfig('app.error.enable_handler', FALSE))
+        if($this->getConfig("app.error.enable_handler", FALSE))
         {
             set_error_handler(function($a, $b, $c, $d, $e) {
                 return $this->errorHandler($a, $b, $c, $d, $e);
@@ -79,18 +79,18 @@ class App
             });
         }
 
-        if($this->getConfig('app.error.report_all', TRUE))
+        if($this->getConfig("app.error.report_all", TRUE))
         {
             error_reporting(E_ALL);
         }
 
-        if($this->getConfig('app.error.show_user', FALSE))
+        if($this->getConfig("app.error.show_user", FALSE))
         {
-            ini_set('display_errors', 'on');
+            ini_set("display_errors", "on");
         }
         else
         {
-            ini_set('display_errors', 'off');
+            ini_set("display_errors", "off");
         }
 
         // Set up some default services
@@ -98,32 +98,32 @@ class App
 
         /*
         registerService(
-        registerService('cache', ...);
-        registerService('captcha', ...);
-        registerService('database', ...);
-        registerService('dispatcher', '%app.dispatcher.class%', array($this));
-        registerService('logger');
-        registerService('request', ...);
-        registerService('response', ...);
-        registerService('session', ...);
-        registerService('template', ...);
+        registerService("cache", ...);
+        registerService("captcha", ...);
+        registerService("database", ...);
+        registerService("dispatcher", "%app.dispatcher.class%", array($this));
+        registerService("logger");
+        registerService("request", ...);
+        registerService("response", ...);
+        registerService("session", ...);
+        registerService("template", ...);
         */
 
         // dispatcher
-        $this->registerService('dispatcher', '%app.dispatcher.class%', array(
+        $this->registerService("dispatcher", "%app.dispatcher.class%", array(
             $this
         ));
 
         // request
-        $this->registerService('request', __NAMESPACE__ . '\\Request');
+        $this->registerService("request", __NAMESPACE__ . "\\Request");
 
         // response
-        $this->registerService('response', __NAMESPACE__ . '\\Response', array(
-            App::ServiceRef('request')
+        $this->registerService("response", __NAMESPACE__ . "\\Response", array(
+            App::ServiceRef("request")
         ));
 
         // database
-        $this->registerService('database', __NAMESPACE__ . '\\Database\\Manager', array(
+        $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager", array(
             $this
         ));
     }
@@ -359,9 +359,9 @@ class App
         else if(is_string($value))
         {
             return preg_replace_callback(
-                '/%(.*?)%/',
+                "/%(.*?)%/",
                 function($matches){
-                    return strlen($matches[1]) ? strval($this->getConfig($matches[1])) : '%';
+                    return strlen($matches[1]) ? strval($this->getConfig($matches[1])) : "%";
                 },
                 $value
             );
@@ -431,19 +431,19 @@ class App
      */
     public function execute()
     {
-        $request = $this->getService('request');
+        $request = $this->getService("request");
         $path = $request->path;
         // Redirect to index if needed
         if(count($path) == 0)
         {
-            $this->redirect($this->getConfig('app.dispatcher.index', '/index'));
+            $this->redirect($this->getConfig("app.dispatcher.index", "/index"));
         }
 
-        // If ending with '/', redirect without it
+        // If ending with "/", redirect without it
         else if(strlen($path[count($path) - 1]) == 0)
         {
             array_pop($path);
-            $this->redirect('/' . implode('/', $path));
+            $this->redirect("/" . implode("/", $path));
         }
 
         // Check the path components
@@ -471,18 +471,18 @@ class App
     protected function dispatch($request, $path)
     {
         // A derived app can override this.  Here we directly create dispatcher
-        // based on service configuration. (Uses 'dispatcher' service, which
-        // by default uses 'app.dispatcher.class' class for the root
+        // based on service configuration. (Uses "dispatcher" service, which
+        // by default uses "app.dispatcher.class" class for the root
         // dispatcher
 
-        $obj = $this->getService('dispatcher');
+        $obj = $this->getService("dispatcher");
         return $obj->dispatch($request, $path);
     }
 
     /**
      * Show an error page.
      */
-    public function errorPage($request, $code, $msg='')
+    public function errorPage($request, $code, $msg="")
     {
     }
 
@@ -494,7 +494,7 @@ class App
      */
     public function url($url)
     {
-        return $this->getService('request')->entry . $url;
+        return $this->getService("request")->entry . $url;
     }
 
     /**
@@ -502,7 +502,7 @@ class App
      */
     public function redirect($url)
     {
-        $response = $this->getService('response');
+        $response = $this->getService("response");
         $response->redirect($this->url($url));
         /** \todo send a template for the response */
         exit();
@@ -578,8 +578,8 @@ class _AppService
     public function addMethodCall($method, $args=array())
     {
         $this->methods[] = new Attr(array(
-            'method' => $method,
-            'arguments' => $args
+            "method" => $method,
+            "arguments" => $args
         ));
         return $this;
     }

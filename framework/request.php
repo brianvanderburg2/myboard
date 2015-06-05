@@ -31,10 +31,10 @@ class Request
         // Path info and path
         $this->pathinfo = $this->getPathInfo();
 
-        $this->path = explode('/', $this->pathinfo);
+        $this->path = explode("/", $this->pathinfo);
         if(count($this->path) && strlen($this->path[0]) == 0)
         {
-            array_shift($this->path); // remove first part since path info starts with '/'
+            array_shift($this->path); // remove first part since path info starts with "/"
         }
 
         // sanitize inputs, etc
@@ -54,19 +54,19 @@ class Request
      */
     protected function getMethod()
     {
-        switch($_SERVER['REQUEST_METHOD'])
+        switch($_SERVER["REQUEST_METHOD"])
         {
-            case 'GET':
-                $method = 'get';
+            case "GET":
+                $method = "get";
                 break;
-            case 'HEAD':
-                $method = 'head';
+            case "HEAD":
+                $method = "head";
                 break;
-            case 'POST':
-                $method = 'post';
+            case "POST":
+                $method = "post";
                 break;
             default:
-                $method = 'unknown';
+                $method = "unknown";
                 break;
         }
 
@@ -82,10 +82,10 @@ class Request
      */
     protected function getPathInfo($calc=FALSE)
     {
-        if($calc || !array_key_exists('PATH_INFO', $_SERVER))
+        if($calc || !array_key_exists("PATH_INFO", $_SERVER))
         {
-            $pathinfo = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
-            if(($pos = strpos($pathinfo, '?' . $_SERVER['QUERY_STRING'])) !== FALSE)
+            $pathinfo = substr($_SERVER["REQUEST_URI"], strlen($_SERVER["SCRIPT_NAME"]));
+            if(($pos = strpos($pathinfo, "?" . $_SERVER["QUERY_STRING"])) !== FALSE)
             {
                 $pathinfo = substr($pathinfo, 0, $pos);
             }
@@ -94,7 +94,7 @@ class Request
         }
         else
         {
-            return $_SERVER['PATH_INFO'];
+            return $_SERVER["PATH_INFO"];
         }
     }
 
@@ -103,7 +103,7 @@ class Request
      */
     protected function getEntryPoint()
     {
-        return $_SERVER['SCRIPT_NAME'];
+        return $_SERVER["SCRIPT_NAME"];
     }
 }
 

@@ -34,7 +34,7 @@ class Dispatcher
     {
         if(count($path))
         {
-            $name = 'dispatch_' . $path[0];
+            $name = "dispatch_" . $path[0];
             if(method_exists($this, $name))
             {
                 array_shift($path);

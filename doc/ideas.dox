@@ -2,6 +2,33 @@
 \page page_ideas Ideas
 \verbatim
 
+App
+    Enable UTF-8 support using mbstring and the following:
+
+        // Set database connection to speack utf
+        MySQL
+            SET NAMES utf8mb4
+            SET CHARACTER SET utf8mb4
+            SET COLLATION_CONNECTION = utf8_unicode_ci'
+
+            create table (...) CHARSET=utf8mb4;
+
+            Connection should append
+            charset=utf8mb4 or soemthing like that (may need to be UTF-8
+
+        //setup php for working with Unicode data
+        mb_internal_encoding('UTF-8');
+        mb_http_output('UTF-8');
+        mb_http_input('UTF-8');
+        mb_language('uni');
+        mb_regex_encoding('UTF-8');
+        ob_start('mb_output_handler');
+
+        // Make sure web pages have correct content type:
+        Content-type: text/html; charset=utf-8
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+
 Framework Database
     NOT a vendor abstraction layer, just some wrappers.
     Originally planned to derive from PDO, but now contain PDO instead
@@ -11,23 +38,156 @@ Framework Database
     DatabaseStatement class (can be in same file since it should never be
      used externally)
 
+    Throw is still \PDOException
+
+
+    protected $transactionCounter = 0;
+    function beginTransaction()
+    {
+        if(!$this->transactionCounter++)
+            return parent::beginTransaction();
+       return $this->transactionCounter >= 0;
+    }
+
+    function commit()
+    {
+       if(!--$this->transactionCounter)
+           return parent::commit();
+       return $this->transactionCounter >= 0;
+    }
+
+    function rollback()
+    {
+        if($this->transactionCounter >= 0)
+        {
+            $this->transactionCounter = 0;
+            return parent::rollback();
+        }
+        $this->transactionCounter = 0;
+        return false;
+    } 
+
+
+    or this is probably better.
+
+    class ExtendedPdo extends PDO
+    {
+
+    /**
+    * @var array Database drivers that support SAVEPOINT * statements.
+    */
+    protected static $_supportedDrivers = array("pgsql", "mysql");
+
+    /**
+    * @var int the current transaction depth
+    */
+    protected $_transactionDepth = 0;
+
+
+    /**
+    * Test if database driver support savepoints
+    *
+    * @return bool
+    */
+    protected function hasSavepoint()
+    {
+        return in_array($this->getAttribute(PDO::ATTR_DRIVER_NAME),
+        self::$_supportedDrivers);
+    }
+
+
+    /**
+    * Start transaction
+    *
+    * @return bool|void
+    */
+    public function beginTransaction()
+    {
+        if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
+        parent::beginTransaction();
+        } else {
+        $this->exec("SAVEPOINT LEVEL{$this->_transactionDepth}");
+        }
+
+        $this->_transactionDepth++;
+    }
+
+    /**
+    * Commit current transaction
+    *
+    * @return bool|void
+    */
+    public function commit()
+    {
+        $this->_transactionDepth--;
+
+        if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
+        parent::commit();
+        } else {
+        $this->exec("RELEASE SAVEPOINT LEVEL{$this->_transactionDepth}");
+        }
+    }
+
+    /**
+    * Rollback current transaction,
+    *
+    * @throws PDOException if there is no transaction started
+    * @return bool|void
+    */
+    public function rollBack()
+    {
+
+        if ($this->_transactionDepth == 0) {
+        throw new PDOException('Rollback error : There is no transaction started');
+        }
+
+        $this->_transactionDepth--;
+
+        if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
+        parent::rollBack();
+        } else {
+        $this->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->_transactionDepth}");
+        }
+    }
+    }
+
+
+    Some usefule functions
+        getTables($prefix=TRUE)
+            Get a list of all tables or just tables with the prefix
+        getColumns($table)
+            Return a list of the column names.
+        getTableCreate($table)
+            Return a string containing the CREATE TABLE statement
+        setIsolationLevel(level)
+            Set the selected isolation level.  If not available,
+            select then next higher isolation level.
+            Serializable is the highest isolation.
+
+        SELECT ... FOR UPDATE
+
     __construct($app) # App contains getConfig
 
-    connect($direct_config)
-    connection($name)
+    connect($name_or_config)
+        If no item is specify, get name from database.default
+        If a string is used, use that as the name.
+        If an array is used, use that as the config
+
+        With a name, get config from database.connections.$name
 
     $db = new Database($app)
-    $db->connection(); # gets name from 'database.default', then uses 'database.connections.$name'
-        'dsn' PDO dsn
+    $db->connect(); # gets name from 'database.default', then uses 'database.connections.$name'
+        'driver'    The driver to use.  The driver implements some helpers
         'username'
         'password'
         'options'
         'prefix' Table prefix (stored as $db->prefix
+        'isolation' The isolation level to use.
+
     $db->connect($direct)
 
     $db->exec (wraps PDO->exec)
     $db->prepare (wrap PDO->prepare, return Statement)
-    $db->execfile
     $db->lastInsertId
 
 

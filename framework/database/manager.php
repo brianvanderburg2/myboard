@@ -40,10 +40,10 @@ class Manager
         // Determine default if needed
         if($name === null)
         {
-            $name = $this->app->getConfig('database.default');
+            $name = $this->app->getConfig("database.default");
             if($name === null)
             {
-                throw new Exception('Connect error : No default connection');
+                throw new Exception("Connect error : No default connection");
             }
         }
 
@@ -51,10 +51,10 @@ class Manager
         if(!isset($this->connections[$name]))
         {
             // Look up the config
-            $config = $this->app->getConfig('database.connections.' . $name);
+            $config = $this->app->getConfig("database.connections." . $name);
             if($config === null)
             {
-                throw new Exception('Connect error : No named connection : ' . $name);
+                throw new Exception("Connect error : No named connection : " . $name);
             }
 
             // Connect and store
@@ -75,20 +75,20 @@ class Manager
     public function connect($config)
     {
         // Create the connection
-        if(!isset($config['driver']))
+        if(!isset($config["driver"]))
         {
-            throw new Exception('Connect error : Database configuration without driver');
+            throw new Exception("Connect error : Database configuration without driver");
         }
         
-        $driver = $config['driver'];
-        $driver_class = __NAMESPACE__ . '\\Driver_' . $driver;
+        $driver = $config["driver"];
+        $driver_class = __NAMESPACE__ . "\\Driver_" . $driver;
         if(class_exists($driver_class))
         {
             return new $driver_class($config);
         }
         else
         {
-            throw new Exception('Connect error : Unsupported driver : ' . $driver);
+            throw new Exception("Connect error : Unsupported driver : " . $driver);
         }
     }
 }

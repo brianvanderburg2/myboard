@@ -18,7 +18,7 @@ class Security
         if(strlen($path) == 0)
             return FALSE;
 
-        $parts = explode('/', $path);
+        $parts = explode("/", $path);
         if(count($parts) == 0)
             return FALSE;
 

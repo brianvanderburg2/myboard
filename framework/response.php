@@ -23,8 +23,8 @@ class Response
      */
     public function noCache()
     {
-        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() - 86400) . ' GMT');
+        header("Cache-Control: no-cache, no-store, must-revalidate, max-age=0");
+        header("Expires: " . gmdate("D, d M Y H:i:s", time() - 86400) . " GMT");
     }
 
     /**
@@ -35,83 +35,83 @@ class Response
      */
     public function cache($delta=0, $private=TRUE)
     {
-        $visibility = $private ? 'private' : 'public';
-        $duration = ($delta > 0) ? ", max-age=$delta" : '';
+        $visibility = $private ? "private" : "public";
+        $duration = ($delta > 0) ? ", max-age=$delta" : "";
 
         header("Cache-Control: {$visibility}{$duration}");
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $delta) . ' GMT');
+        header("Expires: " . gmdate("D, d M Y H:i:s", time() + $delta) . " GMT");
     }
     
     /**
      * Redirect to another location.
      *
      * \param url An absolute URL either with or without the domain and
-     *  protocol.  If specified as '/path/to/file', the host, protocol,
+     *  protocol.  If specified as "/path/to/file", the host, protocol,
      *  and port number will automatically be added.  If no colon is present
-     *  and it does not begin with a '/', then the redirect based on the
+     *  and it does not begin with a "/", then the redirect based on the
      *  script entry point.
      * \return This method does not return.
      */
     public function redirect($url, $code=303)
     {
-        if(strlen($url) >= 2 && substr($url, 0, 2) == '//')
+        if(strlen($url) >= 2 && substr($url, 0, 2) == "//")
         {
-            // Begin with '//' means scheme relative to another domain
-            if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+            // Begin with "//" means scheme relative to another domain
+            if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on")
             {
-                $proto = 'https:';
+                $proto = "https:";
             }
             else
             {
-                $proto = 'http:';
+                $proto = "http:";
             }
 
             $url = $proto . $url;
         }
-        else if(strpos($url, ':') == FALSE)
+        else if(strpos($url, ":") == FALSE)
         {
             // No colon means using current domain
-            if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+            if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on")
             {
-                $proto = 'https://';
+                $proto = "https://";
             }
             else
             {
-                $proto = 'http://';
+                $proto = "http://";
             }
 
-            if(isset($_SERVER['HTTP_HOST']))
+            if(isset($_SERVER["HTTP_HOST"]))
             {
                 // HTTP_HOST includes port if it was used
-                $server = $_SERVER['HTTP_HOST'];
+                $server = $_SERVER["HTTP_HOST"];
             }
             else
             {
                 // SERVER_NAME does not include port even if used
-                $server = $_SERVER['SERVER_NAME'];
-                if(isset($_SERVER['SERVER_PORT']))
+                $server = $_SERVER["SERVER_NAME"];
+                if(isset($_SERVER["SERVER_PORT"]))
                 {
-                    $server = $server. ':' . $_SERVER['SERVER_PORT'];
+                    $server = $server. ":" . $_SERVER["SERVER_PORT"];
                 }
             }
 
-            // If url does not begin with '/' like '/path/to/file' use REQUEST_URI 
-            if($url[0] != '/')
+            // If url does not begin with "/" like "/path/to/file" use REQUEST_URI 
+            if($url[0] != "/")
             {
                 // Add to REQUEST_URI
-                $prefix = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+                $prefix = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 
-                if(substr($prefix, -1) != '/')
+                if(substr($prefix, -1) != "/")
                 {
                     // We are not a directory, so append url to the directory part only
-                    $pos = strrpos($prefix, '/');
+                    $pos = strrpos($prefix, "/");
                     if($pos !== FALSE)
                     {
                         $prefix = substr($prefix, 0, $pos + 1);
                     }
                     else
                     {
-                        $prefix = '/';
+                        $prefix = "/";
                     }
                 }
 
@@ -123,7 +123,7 @@ class Response
 
         $this->status($code);
         $this->noCache();
-        header('Location: '.$url, TRUE, $code);
+        header("Location: ".$url, TRUE, $code);
         exit();
     }
 
@@ -139,13 +139,13 @@ class Response
         if($desc !== null)
             $str .= " $desc";
 
-        if(substr(php_sapi_name(), 0, 3) == 'cgi')
+        if(substr(php_sapi_name(), 0, 3) == "cgi")
         {
             header("Status: $str");
         }
         else
         {
-            header("{$_SERVER['SERVER_PROTOCOL']} $str");
+            header("{$_SERVER["SERVER_PROTOCOL"]} $str");
         }
     }
 
@@ -166,18 +166,18 @@ class Response
     public function ifModifiedSince($timestamp)
     {
         // Handle if-modified-since header
-        if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+        if(isset($_SERVER["HTTP_IF_MODIFIED_SINCE"]))
         {
-            $if_modified_since = strtotime(preg_replace('#;.*$#', '', $_SERVER['HTTP_IF_MODIFIED_SINCE']));
+            $if_modified_since = strtotime(preg_replace("#;.*$#", "", $_SERVER["HTTP_IF_MODIFIED_SINCE"]));
             if($if_modified_since >= $timestamp)
             {
-                $this->status(304, 'Not Modified');
+                $this->status(304, "Not Modified");
                 return FALSE;
             }
         }
         
         // Set headers: Content-Type, Content-Length, Content-Disposition
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $timestamp));
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s \G\M\T", $timestamp));
         return TRUE;
     }
 
@@ -199,14 +199,14 @@ class Response
         }
         
         // Set headers: Content-Type, Content-Length, Content-Disposition
-        header('Content-Length: ' . filesize($file));
+        header("Content-Length: " . filesize($file));
 
         $fi = new \finfo(FILEINFO_NONE); // TODO: allow configuration of mime file used
         $type = $fi->file($filename, FILEINFO_MIME_TYPE);
         if($type === FALSE)
-            $type = 'application/octed-stream';
+            $type = "application/octed-stream";
 
-        header('Content-Type: ' . $type);
+        header("Content-Type: " . $type);
 
         if($cache == 0)
         {
@@ -218,7 +218,7 @@ class Response
         }
 
         // Only proceed if needed
-        if($this->request->method == 'head')
+        if($this->request->method == "head")
             exit();
 
         // Send the file through

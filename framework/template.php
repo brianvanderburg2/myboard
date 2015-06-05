@@ -10,7 +10,7 @@ class Template
 {
     protected $path = array();
     protected $params = array();
-    protected $ext = '.tpl';
+    protected $ext = ".tpl";
     protected $cache = array();
 
     public function __construct($path=array(), $params=array(), $ext=null)
@@ -57,7 +57,7 @@ class Template
         }
 
         // Always set $template
-        $this->params['template'] = $this;
+        $this->params["template"] = $this;
 
         ob_start();
         try
@@ -96,7 +96,7 @@ class Template
         foreach($this->path as $dir)
         {
             // TODO: better file checks to prevent security issues
-            $file = $dir . '/' . $template . $this->ext;;
+            $file = $dir . "/" . $template . $this->ext;;
             if(file_exists($file))
             {
                 $path = $file;

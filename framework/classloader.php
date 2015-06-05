@@ -15,8 +15,8 @@ class ClassLoader
     {
         static::install();
 
-        // Ensure namespace ends with '\', remove any doubles
-        $ns = preg_replace('/\\\\+/', '\\', trim($ns, '\\')) . '\\';
+        // Ensure namespace ends with "\", remove any doubles
+        $ns = preg_replace("/\\\\+/", "\\", trim($ns, "\\")) . "\\";
         
         $loader = new _ClassLoaderEntry($ns, $dir, $ext);
         static::$loaders[] = $loader;
@@ -28,7 +28,7 @@ class ClassLoader
         if(!static::$installed)
         {
             static::$installed = TRUE;
-            spl_autoload_register(array(__CLASS__, 'loadClass'));
+            spl_autoload_register(array(__CLASS__, "loadClass"));
         }
     }
 
@@ -84,9 +84,9 @@ class _ClassLoaderEntry
         // Remove the registered namespace portion
         $classname = substr($classname, $len);
 
-        // Determine the filename portion. Do not replace '_'
+        // Determine the filename portion. Do not replace "_"
         $filename = $this->dir . DIRECTORY_SEPARATOR .
-                    strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $classname)) .
+                    strtolower(str_replace("\\", DIRECTORY_SEPARATOR, $classname)) .
                     $this->ext;
 
         // Load the file and indicate that we handled it

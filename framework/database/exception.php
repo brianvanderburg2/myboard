@@ -31,7 +31,7 @@ class Exception extends \mrbavii\Framework\Exception
      * \param $code The SQLSTATE code for the exception.  If omitted will be an empty string.
      * \param $previous The previous exception.
      */
-    public function __construct($msg, $code='', $previous=null)
+    public function __construct($msg, $code="", $previous=null)
     {
         parent::__construct($msg, 0, $previous);
         $this->_errorCode = $code;
