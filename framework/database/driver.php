@@ -15,8 +15,9 @@ namespace mrbavii\Framework\Database;
  */
 abstract class Driver
 {
+    use \mrbavii\Framework\Traits\Attr;
+
     protected $config;
-    protected $attr;
 
     /**
      * Construct the database driver
@@ -26,30 +27,6 @@ abstract class Driver
     public function __construct($config)
     {
         $this->config = $config;
-        $this->attr = array();
-    }
-
-    /**
-     * Determine if the driver has a certain attribute.
-     *
-     * \param $name The attribute name to query
-     * \return TRUE if the attribute exists, otherwise FALSE
-     */
-    public function hasAttribute($name)
-    {
-        return isset($this->attr[$name]);
-    }
-
-    /**
-     * Get the value of an attribute
-     *
-     * \param $name The attribute name to query
-     * \param $def The default value
-     * \return The attribute value if it exists, otherwise the default value.
-     */
-    public function getAttribute($name, $def=null)
-    {
-        return isset($this->attr[$name]) ? $this->attr[$name] : $def;
     }
 
     /**
