@@ -26,5 +26,27 @@ class Attr
             $this->{$key} = $value;
         }
     }
+
+    /**
+     * Call a method if an attribute is set as a method.
+     *
+     * \param $method The name of the method to call.
+     * \param $args The arguments to pass to the method.
+     * \return The return value of the method call.
+     */
+    public function __call($method, $args)
+    {
+        if(isset($this->{$method}) && is_callable($this->{$method}))
+        {
+            // First arg is this
+            $args = array_merge(array($this), $args);
+            return call_user_func_array($this->{$method}, $args);
+        }
+        else
+        {
+            $cls = __CLASS__;
+            throw new Exception("Fatal Error: Call to undefined method {$cls}::{$method}()");
+        }
+    }
 }
 
