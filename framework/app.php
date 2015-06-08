@@ -577,7 +577,7 @@ class _AppService
      */
     public function addMethodCall($method, $args=array())
     {
-        $this->methods[] = new Attr(array(
+        $this->methods[] = new Generic(array(
             "method" => $method,
             "arguments" => $args
         ));

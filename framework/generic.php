@@ -10,9 +10,9 @@
 namespace mrbavii\Framework;
 
 /**
- * This class is a simple attribute container.
+ * This class is a generic attribute container.
  */
-class Attr
+class Generic
 {
     /**
      * Construct the attribute container.
