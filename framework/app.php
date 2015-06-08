@@ -191,8 +191,6 @@ class App
      * dependencies if needed.
      *
      * \param $name The name of the service.
-     * \param $func_args Extra arguments to pass to placeholders in the constructor
-     *        and method calls.
      * \return The instance of the service object.
      */
     public function getService($name)
