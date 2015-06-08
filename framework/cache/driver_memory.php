@@ -17,39 +17,34 @@ namespace mrbavii\Framework\Cache;
  */
 class Driver_memory extends Driver
 {
-    protected $groups = array();
+    protected $cache = array();
 
-    public function setValue($group, $name, $value, $lifetime=null)
+    public function set($name, $value, $lifetime=null)
     {
-        if(!isset($this->groups[$group]))
-        {
-            $this->groups[$group] = array();
-        }
-
-        $this->groups[$group][$name] = $value;
+        $this->cache[$name] = $value;
+        return TRUE;
     }
 
-    public function getValue($group, $name, $defval=null)
+    public function get($name, $defval=null)
     {
-        return (isset($this->groups[$group]) && isset($this->groups[$group][$name])) ? 
-            $this->groups[$group][$name] : $defval;
+        return isset($this->cache[$name]) ? $this->cache[$name] : $defval;
     }
 
-    public function hasValue($group, $name)
+    public function has($name)
     {
-        return isset($this->groups[$group]) && isset($this->groups[$group][$name]);
+        return isset($this->cache[$name]);
     }
 
-    public function clear($group=null)
+    public function delete($name)
     {
-        if($group === null)
-        {
-            $this->groups = array();
-        }
-        else
-        {
-            $this->groups[$group] = array();
-        }
+        unset($this->cache[$name]);
+        return TRUE;
+    }
+
+    public function flush()
+    {
+        $this->cache = array();
+        return TRUE;
     }
 }
 
