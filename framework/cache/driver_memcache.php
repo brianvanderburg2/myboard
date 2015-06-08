@@ -32,8 +32,8 @@ class Driver_memcache extends Driver
             $port = isset($config["port"]) ? $config["port"] : 11211;
         }
 
-        $this->memcache = new Memcached;
-        $this->memcache->setOption(Memcached::OPT_BINARY_PROTOCOL, TRUE);
+        $this->memcache = new \Memcached;
+        $this->memcache->setOption(\Memcached::OPT_BINARY_PROTOCOL, TRUE);
         $this->memcache->addServer($host, $port);
     }
 
@@ -43,9 +43,9 @@ class Driver_memcache extends Driver
         {
             $lifetime = 0;
         }
-        else if($lifetime > 2592000) // 30 days
+        else
         {
-            $lifetime = 2592000;
+            $lifetime = time() + $lifetime;
         }
 
         return $this->memcache->set($name, $value, $lifetime);
@@ -54,7 +54,7 @@ class Driver_memcache extends Driver
     public function get($name, $defval=null)
     {
         $result = $this->memcache->get($name);
-        return ($result === FALSE) ? $defval : null;
+        return ($result !== FALSE) ? $result : $defval;
     }
 
     public function has($name)
