@@ -49,7 +49,6 @@ class _ClassLoaderEntry
     protected $ns = null;
     protected $dir = null;
     protected $ext = ".php";
-    protected $required = FALSE;
 
     public function __construct($ns, $dir, $ext=null)
     {
@@ -68,12 +67,6 @@ class _ClassLoaderEntry
         return $this;
     }
 
-    public function setRequired($required=TRUE)
-    {
-        $this->required = $required;
-        return $this;
-    }
-
     public function loadClass($classname)
     {
         // Check we are loading only for the desired namespace
@@ -82,28 +75,30 @@ class _ClassLoaderEntry
             return FALSE;
 
         // Remove the registered namespace portion
-        $classname = substr($classname, $len);
+        $subclassname = substr($classname, $len);
 
         // Determine the filename portion. Do not replace "_"
         $filename = $this->dir . DIRECTORY_SEPARATOR .
-                    strtolower(str_replace("\\", DIRECTORY_SEPARATOR, $classname)) .
+                    strtolower(str_replace("\\", DIRECTORY_SEPARATOR, $subclassname)) .
                     $this->ext;
 
-        // Load the file and indicate that we handled it
-        static::loadFile($filename, $this->required);
-        return TRUE;
+        // Load the file
+        // In order to allow other loaders to register the same namespace, return
+        // false if we did not find a file to load.  This will allow, for instance,
+        // creating a custom database or cache driver outside of the framework
+        // tree, then registering an extra classloader.
+        if(is_readable($filename))
+        {
+            static::loadFile($filename);
+            return class_exists($classname, FALSE);
+        }
+
+        return FALSE;
     }
 
-    protected static function loadFile($__filename__, $__required__)
+    protected static function loadFile($__filename__)
     {
-        if($__required__)
-        {
-            require $__filename__;
-        }
-        else
-        {
-            include $__filename__;
-        }
+        require $__filename__;
     }
 }
 
