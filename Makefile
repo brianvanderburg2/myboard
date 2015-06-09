@@ -6,15 +6,7 @@ export SHELLOPTS
 override NAME:=myboard
 override VERSION:=$(shell git describe --always)
 override DATE:=$(shell date +%Y%m%d)
-
-
-# Test target
-.PHONY: tests
-tests:
-
-# Server target
-.PHONY: server
-server: 
+override ROOTDIR:=$(shell pwd)
 
 # Tarball
 .PHONY: tarball
@@ -36,20 +28,38 @@ docs:
 clean:
 	rm -r output
 
-# Test server
-.PHONY: test
-test: CONFIG=test/config.php
-test: PORT=8080
-test: HOST=localhost
-test:
-	mkdir -p output/test
-	cp test/index.php output/test/index.php
-	cp $(CONFIG) output/test/config.php
-	php -S $(HOST):$(PORT) -t output/test
-
-
 # Tests (unit tests)
 .PHONY: tests
 tests: PHPUNIT_OPTS:=--test-suffix _test.php
 tests:
 	phpunit $(PHPUNIT_OPTS) framework/tests/
+
+# We use supervisor (a python process management app) to
+# start the needed services
+.PHONY: config
+config: CONFIG=test/config.php
+config: PORT=8080
+config: SSLPORT=8081
+config: HOST=localhost
+config:
+	mkdir -p output/test
+	mkdir -p output/run
+	mkdir -p output/config
+	cp $(CONFIG) output/test/config.php
+	cp test/index.php output/test/index.php
+	python test/substio.py -i test/config -o output/config \
+		ROOTDIR=$(ROOTDIR) \
+		PORT=$(PORT) SSLPORT=$(SSLPORT)
+
+.PHONY: start
+start: config
+	mkdir -p output/run/supervisor
+	supervisord -c $(ROOTDIR)/output/config/supervisor/supervisord.conf
+
+.PHONY: stop
+stop:
+	supervisorctl -c $(ROOTDIR)/output/config/supervisor/supervisord.conf shutdown
+
+.PHONY: control
+control:
+	supervisorctl -c $(ROOTDIR)/output/config/supervisor/supervisord.conf
