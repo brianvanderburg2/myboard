@@ -19,8 +19,6 @@ use mrbavii\Framework;
  */
 class Board extends Framework\App
 {
-    const DBVERSION = 1; /**< \brief Schema version for the database */
-
     const MAJORVERSION = 0; /**< \brief Major version for board software */
     const MINORVERSION = 0; /**< \brief Minor version for board software */
 
@@ -33,21 +31,23 @@ class Board extends Framework\App
     {
         // Configuration
         $default_config = array(
-            'app.dispatcher.class' => __NAMESPACE__ . '\\Dispatcher\\Main'
+            "app.dispatcher.class" => __NAMESPACE__ . "\\Dispatcher\\Main",
+            "app.datadir.app" => __DIR__ . "/../data",
+            "app.template.params" => array("board" => $this)
         );
 
         // Call base constructor with merged configuration
         parent::__construct(array_merge($default_config, $config));
         
         // Register services objects default objects
-        $this->registerService('installer', __NAMESPACE__ . '\\Installer', array($this));
+        $this->registerService("installer", __NAMESPACE__ . "\\Installer", array($this));
     }
 
-    public function errorPage($request, $code, $msg='')
+    public function errorPage($request, $code, $msg="")
     {
         if($code == 404)
         {
-            $this->getService('response')->status(404, 'Not Found');
+            $this->getService("response")->status(404, "Not Found");
         }
     }
 }
