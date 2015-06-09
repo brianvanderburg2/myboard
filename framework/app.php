@@ -506,6 +506,21 @@ class App
         exit();
     }
 
+    /* Directory handling methods
+     ****************************/
+
+    /**
+     * Get a data directory.
+     * The data directory is determined by the configuration
+     * value "app.datadir.<name>"
+     *
+     * \param $name The name of the data directory to get
+     * \param $defval The value to return if the data directory is configured.
+     */
+    public function getDataDir($name, $defval=null)
+    {
+        return $this->getConfig("app.datadir.{$name}", $defval);
+    }
 }
 
 /**
