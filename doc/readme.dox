@@ -47,10 +47,19 @@ that are available.
  - \b app.datadir.user \n
    The data directory for user data files.  Used by default services such
    as Template \n
+ - \b app.template.path \n
+   The array search path for templates. \n
+   DEFAULT: array("%app.datadir.user%/templates", "%app.datadir.app%/templates")
+ - \b app.template.params \n
+   The array of parameters to initially set for each template. \n
+   DEFAULT: array("app" => $this)
+ - \b app.template.ext \n
+   The extension to expect for templates \n
+   DEFAULT: null (use Template default extension of ".phtml")
 
  - \b app.sendfile.method \n
    The method to use to send files to the client. \n
-   DEFAUL: "readfile"
+   DEFAULT: "readfile"
  - \b app.sendfile.options \n
    Options to pass to the file reader.
 
@@ -58,4 +67,11 @@ that are available.
 
  - \b app.dispatcher.class \n
    DEFAULT: "mrbavii\Board\Dispatcher\Main"
+ - \b app.datadir.app \n
+   DEFAULT: Board internal data directory
+ - \b app.datadir.app \n
+   The directory for user changes to board data files. \n
+   REQUIERD \n
+ - \b app.template.params \n
+   DEFAULT: array("board" => $this)
 */

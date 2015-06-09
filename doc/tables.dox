@@ -1,0 +1,15 @@
+/**
+\page page_tables Tables
+
+This is the list of tables that are created by board.
+
+\section settings
+
+A name=value pair of settings and other attributes.
+
+ - \b name \n
+   The name of a setting
+ - \b value \n
+   The value of a setting
+
+*/
