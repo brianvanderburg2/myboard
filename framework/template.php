@@ -10,7 +10,7 @@ class Template
 {
     protected $path = array();
     protected $params = array();
-    protected $ext = ".tpl";
+    protected $ext = ".phtml";
     protected $cache = array();
 
     public function __construct($path=array(), $params=array(), $ext=null)
