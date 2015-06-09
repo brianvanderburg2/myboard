@@ -34,8 +34,12 @@ tests: PHPUNIT_OPTS:=--test-suffix _test.php
 tests:
 	phpunit $(PHPUNIT_OPTS) framework/tests/
 
-# We use supervisor (a python process management app) to
-# start the needed services
+# Test servers
+# The test servers have simple configurations for Apache, Lighttpd, nginx, and PHP
+# They still require an external MySQL server.  The configuration file used for
+# the test is specified by CONFIG= and defaults to test/config.php
+##################################################################################
+
 .PHONY: config
 config: CONFIG=test/config.php
 config: PORT=8080
@@ -45,21 +49,46 @@ config:
 	mkdir -p output/test
 	mkdir -p output/run
 	mkdir -p output/config
+	mkdir -p output/data
 	cp $(CONFIG) output/test/config.php
 	cp test/index.php output/test/index.php
 	python test/substio.py -i test/config -o output/config \
 		ROOTDIR=$(ROOTDIR) \
 		PORT=$(PORT) SSLPORT=$(SSLPORT)
 
-.PHONY: start
-start: config
-	mkdir -p output/run/supervisor
-	supervisord -c $(ROOTDIR)/output/config/supervisor/supervisord.conf
 
+# PHP
+.PHONY: start-php stop-php
+start-php: stop config
+	/usr/sbin/php5-fpm --daemonize --fpm-config $(ROOTDIR)/output/config/php/php-fpm.conf \
+		--no-php-ini --php-ini $(ROOTDIR)/output/config/php/php.ini
+
+stop-php:
+	test ! -f $(ROOTDIR)/output/run/php5-fpm.pid || kill `cat $(ROOTDIR)/output/run/php5-fpm.pid`
+
+# Apache
+.PHONY: start-apache stop-apache
+start-apache: stop config start-php
+
+stop-apache:
+
+# Lighttpd
+.PHONY: start-lighttpd stop-lighttpd
+start-lighttpd: stop config start-php
+	/usr/sbin/lighttpd -f $(ROOTDIR)/output/config/lighttpd/lighttpd.conf
+	
+stop-lighttpd:
+	test ! -f $(ROOTDIR)/output/run/lighttpd.pid || kill `cat $(ROOTDIR)/output/run/lighttpd.pid`
+
+# nginx
+.PHONY: start-nginx stop-nginx
+start-nginx: stop config start-php
+	/usr/sbin/nginx -p $(ROOTDIR) -c $(ROOTDIR)/output/config/nginx/nginx.conf -g 'error_log stderr;'
+
+stop-nginx:
+	test ! -f $(ROOTDIR)/output/run/nginx.pid || kill `cat $(ROOTDIR)/output/run/nginx.pid`
+
+# Stop everything
 .PHONY: stop
-stop:
-	supervisorctl -c $(ROOTDIR)/output/config/supervisor/supervisord.conf shutdown
+stop: stop-php stop-apache stop-lighttpd stop-nginx
 
-.PHONY: control
-control:
-	supervisorctl -c $(ROOTDIR)/output/config/supervisor/supervisord.conf
