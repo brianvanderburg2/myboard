@@ -18,6 +18,8 @@ that are available.
 
 \subsection readme_config_framework Framework
 
+\b App
+
  - \b app.dispatcher.index \n
    The index page.  If there is no path information, this is the default
    path information to redirect to. \n
@@ -37,12 +39,15 @@ that are available.
  - \b app.error.show_user \n
    If TRUE, display_errors will be turned on, otherwise it will be turned off. \n
    DEFAULT: FALSE
- - \b app.appdata.dir \n
-   The data directory for application data files.  Used by default services
+ - \b app.datadir.<name> \n
+   The directory for named data files called <name>.  Used by App::getDataDir
+ - \b app.datadir.app \n
+   The directory for application data files.  Used by default services
    such as Template \n
- - \b app.userdata.dir \n
+ - \b app.datadir.user \n
    The data directory for user data files.  Used by default services such
    as Template \n
+
  - \b app.sendfile.method \n
    The method to use to send files to the client. \n
    DEFAUL: "readfile"
@@ -52,5 +57,5 @@ that are available.
 \subsection readme_config_board Board
 
  - \b app.dispatcher.class \n
-   DEFAULT: "mrbavii\Board\Dispatchers\Main"
+   DEFAULT: "mrbavii\Board\Dispatcher\Main"
 */

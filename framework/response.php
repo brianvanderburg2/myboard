@@ -225,6 +225,8 @@ class Response
         while(@ob_end_flush());
 
         // TODO: allow configuration of a callback function to send the file.
+        // or a sendfile helper that can be configured, perhaps Sendfile\Driver_<name>
+        // for xsendfile, nginx, etc
 
         // Got here, manually send using readfile
         @readfile($filename, FALSE);
