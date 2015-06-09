@@ -59,6 +59,9 @@ class App
    
         // Set up the configuration
         $default_config = array(
+            "app.template.path" => array("%app.datadir.user%/templates", "%app.datadir.app%/templates"),
+            "app.template.params" => array("app" => $this),
+            "app.template.ext" => null, // Use default template extension
         );
 
         $this->config = array_merge($default_config, $config);
@@ -125,6 +128,13 @@ class App
         // database
         $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager", array(
             $this
+        ));
+
+        // template
+        $this->registerService("template", __NAMESPACE__ . "\\Template", array(
+            App::ConfigRef("app.template.path"),
+            App::ConfigRef("app.template.params"),
+            App::ConfigRef("app.template.ext")
         ));
     }
 
