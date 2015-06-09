@@ -9,19 +9,27 @@ override DATE:=$(shell date +%Y%m%d)
 override ROOTDIR:=$(shell pwd)
 
 # Tarball
-.PHONY: tarball
-tarball: PREFIX:=$(NAME)-$(DATE)-$(VERSION)
-tarball:
+.PHONY: tarball-src tarball-doc tarball
+tarball-src: PREFIX:=$(NAME)-$(DATE)-$(VERSION)
+tarball-src:
 	mkdir -p output
 	git archive --format=tar --prefix=$(PREFIX)/ HEAD | xz > output/$(PREFIX).tar.xz
 	gpg --detach-sign --armour  output/$(PREFIX).tar.xz
 
+tarball-doc: PREFIX:=$(NAME)-$(DATE)-$(VERSION)-doc
+tarball-doc: doc
+	tar -cJf output/$(PREFIX).tar.xz -C output/doc/html --xform 's#^\.#$(PREFIX)#S' .
+	gpg --detach-sign --armour  output/$(PREFIX).tar.xz
+
+tarball: tarball-src tarball-doc
+
 # Documentation
-.PHONY: docs
-docs:
+.PHONY: doc
+doc:
 	mkdir -p output
+	test ! -e output/doc/html || rm -rf output/doc/html
 	doxygen
-	-rm output/doc/doxygen_sqlite3.db
+	test ! -e output/doc/doxygen_sqlite3.db || rm output/doc/doxygen_sqlite3.db
 
 # Cleanup
 .PHONY: clean
