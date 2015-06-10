@@ -437,11 +437,14 @@ class App
 
     /**
      * Execute the application.
+     *
+     * \param $pathinfo Set to the path info if the default detection doesn't work.
      */
-    public function execute()
+    public function execute($pathinfo=null)
     {
         $request = $this->getService("request");
-        $path = $request->path;
+        $request->pathinfo($pathinfo);
+        $path = $request->path();
         // Redirect to index if needed
         if(count($path) == 0)
         {
@@ -466,7 +469,7 @@ class App
         }
 
         // Dispatch
-        if($this->dispatch($request, $request->path) == FALSE)
+        if($this->dispatch($request, $path) == FALSE)
         {
             $this->errorPage($request, 404);
         }
@@ -503,7 +506,7 @@ class App
      */
     public function url($url)
     {
-        return $this->getService("request")->entry . $url;
+        return $this->getService("request")->entry() . $url;
     }
 
     /**
