@@ -13,10 +13,15 @@ class Template
     protected $ext = ".phtml";
     protected $cache = array();
 
-    public function __construct($path=array(), $params=array(), $ext=null)
+    public function __construct($path, $params=null, $ext=null)
     {
         $this->path = $path;
-        $this->param = $params;
+
+        if($params !== null)
+        {
+            $this->params = $params;
+        }
+
         if($ext !== null)
         {
             $this->ext = $ext;
@@ -95,7 +100,11 @@ class Template
         $path = FALSE;
         foreach($this->path as $dir)
         {
-            // TODO: better file checks to prevent security issues
+            // Ignore potentially NULL paths
+            if($dir === null)
+                continue;
+
+            // TODO: maybe better file checks to prevent security issues
             $file = $dir . "/" . $template . $this->ext;;
             if(file_exists($file))
             {
