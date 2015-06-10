@@ -353,7 +353,7 @@ class App
         }
         else if($value instanceof _AppConfigRef)
         {
-            return $this->getConfig($value->name);
+            return $this->getConfig($value->name, $value->defval);
         }
         else if(is_array($value))
         {
@@ -387,11 +387,12 @@ class App
      * Create a direct reference to another configuration.
      *
      * \param $name The name of the configuration to refernce.
+     * \param $defval The default value for the configuration if not set.
      * \return The reference object for the configuration.
      */
-    public static function ConfigRef($name)
+    public static function ConfigRef($name, $defval=null)
     {
-        return new _AppConfigRef($name);
+        return new _AppConfigRef($name, $defval);
     }
 
     /**
@@ -651,6 +652,12 @@ class _AppServiceRef extends _AppRef
  */
 class _AppConfigRef extends _AppRef
 {
+    public $defval;
+    public function __construct($name, $defval=null)
+    {
+        parent::__construct($name);
+        $this->defval = $defval;
+    }
 }
 
 
