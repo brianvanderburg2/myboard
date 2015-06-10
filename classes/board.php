@@ -32,8 +32,7 @@ class Board extends Framework\App
         // Configuration
         $default_config = array(
             "app.dispatcher.class" => __NAMESPACE__ . "\\Dispatcher\\Main",
-            "app.datadir.app" => __DIR__ . "/../data",
-            "app.template.params" => array("board" => $this)
+            "app.datadir.app" => __DIR__ . "/../data"
         );
 
         // Call base constructor with merged configuration
@@ -41,6 +40,7 @@ class Board extends Framework\App
         
         // Register services objects default objects
         $this->registerService("installer", __NAMESPACE__ . "\\Installer", array($this));
+        $this->registerService("page", __NAMESPACE__ . "\\Page", array($this))->setShared(FALSE);
     }
 
     public function errorPage($request, $code, $msg="")

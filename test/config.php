@@ -7,6 +7,7 @@ $config = array(
     'database.name' => 'test',
     
     # This will become output/test/data 
-    'app.datadir.user' => __DIR__ . "/data"
+    'app.datadir.user' => __DIR__ . "/data",
+    "app.error.show_user" => TRUE
 );
 

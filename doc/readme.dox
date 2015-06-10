@@ -72,6 +72,4 @@ that are available.
  - \b app.datadir.app \n
    The directory for user changes to board data files. \n
    REQUIERD \n
- - \b app.template.params \n
-   DEFAULT: array("board" => $this)
 */
