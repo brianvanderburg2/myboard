@@ -50,5 +50,21 @@ class Board extends Framework\App
             $this->getService("response")->status(404, "Not Found");
         }
     }
+
+    public function checkAdminKey($password)
+    {
+        /** \todo: create a framework Password helper. */
+
+        $key = $this->getConfig("admin.key");
+        if($key === null)
+            return FALSE;
+
+        return password_verify($password, $key);
+    }
+
+    public function createAdminKey($password)
+    {
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
 }
 
