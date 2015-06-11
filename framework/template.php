@@ -100,8 +100,8 @@ class Template
         $path = FALSE;
         foreach($this->path as $dir)
         {
-            // Ignore potentially NULL paths
-            if($dir === null)
+            // Ignore NULL or empty paths paths
+            if($dir === null || strlen($dir) == 0)
                 continue;
 
             // TODO: maybe better file checks to prevent security issues

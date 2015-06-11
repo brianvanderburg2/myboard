@@ -60,8 +60,7 @@ class App
         // Set up the configuration
         $default_config = array(
             "app.template.path" => array("%app.datadir.user%/templates", "%app.datadir.app%/templates"),
-            "app.template.params" => array("app" => $this),
-            "app.template.ext" => null, // Use default template extension
+            "app.template.params" => array("app" => $this)
         );
 
         $this->config = array_merge($default_config, $config);
@@ -211,7 +210,7 @@ class App
 
         /* Get service info */
         if(!isset($this->services[$name]))
-            return null; /** \todo exception */
+            return null;
 
         $service = $this->services[$name];
 
@@ -225,11 +224,19 @@ class App
         if($service->constructor)
         {
             $cons = $this->normalizeValue($service->constructor);
+            if($cons === null)
+            {
+                throw new Exception("Null constructor for service : {$name}");
+            }
             $obj = call_user_func_array($cons, $params);
         }
         else
         {
             $cls = $this->normalizeValue($service->class);
+            if($cls === null)
+            {
+                throw new Exception("Null class for service : {$name}");
+            }
             $reflection = new \ReflectionClass($cls);
             $obj = $reflection->newInstanceArgs($params);
         }
@@ -239,7 +246,9 @@ class App
         {
             /** \todo Support calling closures as well */
             if(!method_exists($obj, $method->method))
-                continue; /** \todo exception */
+            {
+                throw new Exception("No such method for service : {$name} : {$method->method}");
+            }
 
             $params = array();
             foreach($method->arguments as $arg)
@@ -315,8 +324,8 @@ class App
         if(!isset($this->config[$name]))
             return $defval;
 
-        $value = $this->config[$name];
-        return $this->normalizeValue($value);
+        $value = $this->normalizeValue($this->config[$name]);
+        return ($value !== null) ? $value : $defval;
     }
 
     /**
@@ -353,7 +362,7 @@ class App
         }
         else if($value instanceof _AppConfigRef)
         {
-            return $this->getConfig($value->name, $value->defval);
+            return $this->getConfig($value->name);
         }
         else if(is_array($value))
         {
@@ -366,13 +375,32 @@ class App
         }
         else if(is_string($value))
         {
-            return preg_replace_callback(
+            // If substitution fails anywhere, return null instead of any string.
+            $subst_success = TRUE;
+            $result = preg_replace_callback(
                 "/%(.*?)%/",
-                function($matches){
-                    return strlen($matches[1]) ? strval($this->getConfig($matches[1])) : "%";
+                function($matches) use (&$subst_success) {
+                    if(strlen($matches[1]))
+                    {
+                        $subst = $this->getConfig($matches[1]);
+                        if($subst === null)
+                        {
+                            $subst_success = FALSE;
+                            return "";
+                        }
+                        else
+                        {
+                            return strval($subst);
+                        }
+                    }
+                    else
+                    {
+                        return "%";
+                    }
                 },
                 $value
             );
+            return $subst_success ? $result : null;
         }
         else
         {
@@ -387,12 +415,11 @@ class App
      * Create a direct reference to another configuration.
      *
      * \param $name The name of the configuration to refernce.
-     * \param $defval The default value for the configuration if not set.
      * \return The reference object for the configuration.
      */
-    public static function ConfigRef($name, $defval=null)
+    public static function ConfigRef($name)
     {
-        return new _AppConfigRef($name, $defval);
+        return new _AppConfigRef($name);
     }
 
     /**
@@ -655,12 +682,6 @@ class _AppServiceRef extends _AppRef
  */
 class _AppConfigRef extends _AppRef
 {
-    public $defval;
-    public function __construct($name, $defval=null)
-    {
-        parent::__construct($name);
-        $this->defval = $defval;
-    }
 }
 
 
