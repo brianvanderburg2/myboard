@@ -16,6 +16,40 @@ Various classes fo the framework and board can be configured by the configuratio
 passed to the \ref mrbavii::Framework::App "App" construction.  This section describes the configuration values
 that are available.
 
+\subsection readme_config_normalization Normalization
+
+Values are normalized at the following locations in the App class.
+
+ - Service class and constructors names during \ref mrbavii::Framework::App::getService "App::getService"
+ - Arguments to service class or construct functions during \ref mrbavii::Framework::App::getService "App::getService"
+ - Arguments to service method calls during \ref mrbavii::Framework::App::getService "App::getService"
+ - The value of configuration items during \ref mrbavii::Framework::App::getConfig "App::getConfig"
+
+During a direct call to getConfig
+
+ - If the named configuration value does not exist, the default value is returned as is.
+ - If the normalized value of the configuration value is null, the default value is returned as is.
+ - Otherwise, the normalized value of the configuration value is returned.
+
+During normalization:
+
+ - If the value is a sevice reference, getService is called and the result returned.  This will be
+   null if the service does not exist.
+ - If the value is a configuration reference, getConfig is called with null as a default and the
+   result returned.  This will be null if the configuration does not exist or the normalized value is null.
+ - If the value is an array, an array is returned with the same keys, but each value is normalized
+   recursively.  If a specific value can not be normalized, the value of that key will be set to null.
+ - If the value is a string, parameters may be substituted in the form of "@param@".  This will
+   result in a call to getConfig with a default value of null.  If any parameter substitution
+   in a string is null, null is returned.  Otherwise the string value is returned after substitution.
+
+Because of the way configuration works, services and other areas that use configurations should
+be prepared to accept null arguments or arrays will null values.  While a direct call to getConfig
+can specify a default value, if the value of the configuration can even be partially normalized, such
+as an array, then the result will not be the default value but the partially normalized items, which may
+contain null values.  String substitution in which any part of a substitution can not be normalized
+will be entirely set to null instead of trying to guess what to do with the missing substitution data.
+
 \subsection readme_config_framework Framework
 
 \b App
@@ -49,10 +83,10 @@ that are available.
    as Template \n
  - \b app.template.path \n
    The array search path for templates. \n
-   DEFAULT: array("%app.datadir.user%/templates", "%app.datadir.app%/templates")
+   VALUE: array("%app.datadir.user%/templates", "%app.datadir.app%/templates")
  - \b app.template.params \n
    The array of parameters to initially set for each template. \n
-   DEFAULT: array("app" => $this)
+   VALUE: array("app" => $this)
  - \b app.template.ext \n
    The extension to expect for templates \n
    DEFAULT: null (use Template default extension of ".phtml")

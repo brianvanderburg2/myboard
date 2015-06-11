@@ -314,10 +314,12 @@ class App
      * This will perform any subsitutions and replacements as needed.
      *
      * \param $name The name of the configuration.
-     * \param $deval The default value if the configuration is not set.
+     * \param $deval The default value if the configuration is not set or can
+     *  not be even partialy normalized.  If the value can be partially or entirely
+     *  normalized, that value is returned instead.
      * \return The normalized value of the configuration.  This may be a string
      *   if the configuration was a string, otherwise it will be the direct
-     *   value of that configuration or it's reference.
+     *   value of that configuration or its reference.
      */
     public function getConfig($name, $defval=null)
     {
@@ -351,6 +353,14 @@ class App
 
     /**
      * Normalize a value based on any references or templates.
+     *
+     * Normalization is applied to class and constructor names and arguments, method
+     * call arguments, and to configurations.  During normalization of an item, if the
+     * item can not be partially normalized, null is returned.  If the item being normalized
+     * is an array, each key is normalized and the resulting array is returned.  Any key
+     * that can not be normalized is set to null. This is performed recursively.  if the
+     * item being normalized is a string, substitution is performed.  If any portion of
+     * the substition fails, then null is returned instead of the expanded string.
      *
      * \param $value The value to normalize.
      */
