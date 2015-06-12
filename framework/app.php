@@ -502,8 +502,9 @@ class App
         $path = $request->path();
 
         // Redirect to index if needed
-        if(count($path) == 0)
+        if(count($path) == 0 || (count($path) == 1 && strlen($path[0]) == 0))
         {
+            // No path ("/entry.php") or single trailing slash ("/entry.php/")
             $this->redirect($this->getConfig("app.dispatcher.index", "/index"));
         }
         // If ending with "/", redirect without it
