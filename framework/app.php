@@ -525,10 +525,10 @@ class App
         }
 
         // Dispatch
-        if($this->dispatch($request, $path) == FALSE)
-        {
-            $this->errorPage($request, 404);
-        }
+        $this->dispatch($request, $path);
+
+        // Dispatch should exit, not return;
+        $this->errorPage($request, 404);
 
         exit();
     }
@@ -544,7 +544,10 @@ class App
         // dispatcher
 
         $obj = $this->getService("dispatcher");
-        return $obj->dispatch($request, $path);
+        if($obj !== null)
+        {
+            $obj->dispatch($request, $path);
+        }
     }
 
     /**

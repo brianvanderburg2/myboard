@@ -38,11 +38,12 @@ class Dispatcher
             if(method_exists($this, $name))
             {
                 array_shift($path);
-                return $this->$name($request, $path);
+                $this->$name($request, $path);
+                // Don't exit here.  The called function should exit after it handles
+                // the dispatch.  If it does not exit, return.  If return goes all
+                // the back to App::execute, it will handle the return as a 404 error
             }
         }
-
-        return FALSE;
     }
 }
 
