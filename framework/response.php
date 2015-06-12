@@ -201,11 +201,11 @@ class Response
         // Set headers: Content-Type, Content-Length, Content-Disposition
         header("Content-Length: " . filesize($filename));
 
-        $fi = new \finfo(FILEINFO_NONE); // TODO: allow configuration of mime file used
-        $type = $fi->file($filename, FILEINFO_MIME_TYPE);
+        $type = $this->app->getService("mime")->getContentType($filename);
         if($type === FALSE)
+        {
             $type = "application/octet-stream";
-
+        }
         header("Content-Type: " . $type);
 
         if($cache == 0)

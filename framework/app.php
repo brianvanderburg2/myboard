@@ -110,29 +110,22 @@ class App
         */
 
         // dispatcher
-        $this->registerService("dispatcher", "%app.dispatcher.class%", array(
-            $this
-        ));
+        $this->registerService("dispatcher", "%app.dispatcher.class%", array($this));
 
         // request
-        $this->registerService("request", __NAMESPACE__ . "\\Request", array(
-            $this
-        ));
+        $this->registerService("request", __NAMESPACE__ . "\\Request", array($this));
 
         // response
-        $this->registerService("response", __NAMESPACE__ . "\\Response", array(
-            $this
-        ));
+        $this->registerService("response", __NAMESPACE__ . "\\Response", array($this));
 
         // database
-        $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager", array(
-            $this
-        ));
+        $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager", array($this));
 
         // template
-        $this->registerService("template", __NAMESPACE__ . "\\Template", array(
-            $this
-        ));
+        $this->registerService("template", __NAMESPACE__ . "\\Template", array($this));
+
+        // mime
+        $this->registerService("mime", __NAMESPACE__ . "\\MimeType", array($this));
     }
 
     /**
