@@ -11,11 +11,11 @@ namespace mrbavii\Framework;
  */
 class Response
 {
-    protected $board;
+    protected $app = null;
 
-    public function __construct($request)
+    public function __construct($app)
     {
-        $this->request = $request;
+        $this->app = $app;
     }
 
     /**
@@ -218,7 +218,7 @@ class Response
         }
 
         // Only proceed if needed
-        if($this->request->method == "head")
+        if($this->app->getService("request")->method() == "head")
             exit();
 
         // Send the file through

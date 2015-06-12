@@ -27,8 +27,8 @@ Values are normalized at the following locations in the App class.
 
 During a direct call to getConfig
 
- - If the named configuration value does not exist, the default value is returned as is.
- - If the normalized value of the configuration value is null, the default value is returned as is.
+ - If the named configuration value does not exist, the default value is normalized and returned.
+ - If the normalized value of the configuration value is null, the default value is normalized and returned.
  - Otherwise, the normalized value of the configuration value is returned.
 
 During normalization:
@@ -39,7 +39,7 @@ During normalization:
    result returned.  This will be null if the configuration does not exist or the normalized value is null.
  - If the value is an array, an array is returned with the same keys, but each value is normalized
    recursively.  If a specific value can not be normalized, the value of that key will be set to null.
- - If the value is a string, parameters may be substituted in the form of "@param@".  This will
+ - If the value is a string, parameters may be substituted in the form of "%param%".  This will
    result in a call to getConfig with a default value of null.  If any parameter substitution
    in a string is null, null is returned.  Otherwise the string value is returned after substitution.
 
@@ -81,21 +81,18 @@ will be entirely set to null instead of trying to guess what to do with the miss
  - \b app.datadir.user \n
    The data directory for user data files.  Used by default services such
    as Template \n
- - \b app.template.path \n
-   The array search path for templates. \n
-   VALUE: array("%app.datadir.user%/templates", "%app.datadir.app%/templates")
- - \b app.template.params \n
-   The array of parameters to initially set for each template. \n
-   VALUE: array("app" => $this)
- - \b app.template.ext \n
-   The extension to expect for templates \n
-   DEFAULT: null (use Template default extension of ".phtml")
 
- - \b app.sendfile.method \n
-   The method to use to send files to the client. \n
-   DEFAULT: "readfile"
- - \b app.sendfile.options \n
-   Options to pass to the file reader.
+\b Template
+
+ - \b template.path \n
+   The array search path for templates. \n
+   DEFAULT: array("%app.datadir.user%/templates", "%app.datadir.app%/templates")
+ - \b template.params \n
+   The array of parameters to initially set for each template. \n
+   DEFAULT: array()
+ - \b template.ext \n
+   The extension to expect for templates \n
+   DEFAULT: ".phtml"
 
 \subsection readme_config_board Board
 

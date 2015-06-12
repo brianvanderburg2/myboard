@@ -59,8 +59,6 @@ class App
    
         // Set up the configuration
         $default_config = array(
-            "app.template.path" => array("%app.datadir.user%/templates", "%app.datadir.app%/templates"),
-            "app.template.params" => array("app" => $this)
         );
 
         $this->config = array_merge($default_config, $config);
@@ -117,11 +115,13 @@ class App
         ));
 
         // request
-        $this->registerService("request", __NAMESPACE__ . "\\Request");
+        $this->registerService("request", __NAMESPACE__ . "\\Request", array(
+            $this
+        ));
 
         // response
         $this->registerService("response", __NAMESPACE__ . "\\Response", array(
-            App::ServiceRef("request")
+            $this
         ));
 
         // database
@@ -131,9 +131,7 @@ class App
 
         // template
         $this->registerService("template", __NAMESPACE__ . "\\Template", array(
-            App::ConfigRef("app.template.path"),
-            App::ConfigRef("app.template.params"),
-            App::ConfigRef("app.template.ext")
+            $this
         ));
     }
 
@@ -325,18 +323,29 @@ class App
      * \param $name The name of the configuration.
      * \param $deval The default value if the configuration is not set or can
      *  not be even partialy normalized.  If the value can be partially or entirely
-     *  normalized, that value is returned instead.
+     *  normalized, that value is normalized returned instead.  If the default
+     *  value can not be normalized, null is returned.
      * \return The normalized value of the configuration.  This may be a string
      *   if the configuration was a string, otherwise it will be the direct
      *   value of that configuration or its reference.
      */
     public function getConfig($name, $defval=null)
     {
-        if(!isset($this->config[$name]))
-            return $defval;
+        if(isset($this->config[$name]))
+        {
+            $value = $this->normalizeValue($this->config[$name]);
+            if($value !== null)
+            {
+                return $value;
+            }
+        }
 
-        $value = $this->normalizeValue($this->config[$name]);
-        return ($value !== null) ? $value : $defval;
+        if($defval !== null)
+        {
+            $defval = $this->normalizeValue($defval);
+        }
+
+        return $defval;
     }
 
     /**
@@ -489,14 +498,14 @@ class App
     public function execute($pathinfo=null)
     {
         $request = $this->getService("request");
-        $request->pathinfo($pathinfo);
+        $request->setPathinfo($pathinfo);
         $path = $request->path();
+
         // Redirect to index if needed
         if(count($path) == 0)
         {
             $this->redirect($this->getConfig("app.dispatcher.index", "/index"));
         }
-
         // If ending with "/", redirect without it
         else if(strlen($path[count($path) - 1]) == 0)
         {

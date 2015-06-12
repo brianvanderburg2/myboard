@@ -8,24 +8,23 @@ namespace mrbavii\Framework;
 
 class Template
 {
-    protected $path = array();
-    protected $params = array();
-    protected $ext = ".phtml";
+    protected $app = null;
+    protected $path = null;
+    protected $params = null;
+    protected $ext = null;
     protected $cache = array();
 
-    public function __construct($path, $params=null, $ext=null)
+    public function __construct($app)
     {
-        $this->path = $path;
+        $this->app = $app;
 
-        if($params !== null)
-        {
-            $this->params = $params;
-        }
+        $this->path = $app->getConfig("template.path", array(
+            "%app.datadir.user%/templates",
+            "%app.datadir.app%/templates"
+        ));
 
-        if($ext !== null)
-        {
-            $this->ext = $ext;
-        }
+        $this->params = $app->getConfig("template.params", array());
+        $this->ext = $app->getConfig("template.ext", ".phtml");
     }
  
     public function send($template, $params=null, $override=FALSE)
@@ -61,8 +60,9 @@ class Template
             }
         }
 
-        // Always set $template
+        // Always set $template and $app
         $this->params["template"] = $this;
+        $this->params["app"] = $this->app;
 
         ob_start();
         try

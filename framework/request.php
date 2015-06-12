@@ -16,6 +16,8 @@ namespace mrbavii\Framework;
  */
 class Request
 {
+    protected $app = null;
+
     protected $_pathinfo = null; /**< \brief The PATHINFO of the request */
     protected $_path = null; /**< \brief The array of path parts. */
     protected $_method = null; /**< \brief The method of the request.  \see getMethod */
@@ -26,22 +28,27 @@ class Request
      * Construct the request
      *
      */
-    public function __construct()
+    public function __construct($app)
     {
+        $this->app = $app;
     }
 
     /**
-     * Get the PATH_INFO of the request or forcefully set the PATH_INFO.
+     * Make pathinfo a specific value.  If null is passed, then the call to pathinfo()
+     * will auto-detect the PATH_INFO value.  Otherwise it will use the value set here.
      */
-    public function pathinfo($pathinfo=null)
+    public function setPathinfo($pathinfo)
     {
-        if($pathinfo !== null)
-        {
-            // Forcefully set pathinfo, reset path
-            $this->_pathinfo = $pathinfo;
-            $this->_path = null;
-        }
-        else if($this->_pathinfo === null)
+        $this->_pathinfo = $pathinfo;
+        $this->_path = null; // reset path
+    }
+
+    /**
+     * Get the PATH_INFO of the request
+     */
+    public function pathinfo()
+    {
+        if($this->_pathinfo === null)
         {
             if(!array_key_exists("PATH_INFO", $_SERVER))
             {
