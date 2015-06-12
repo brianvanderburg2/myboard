@@ -244,8 +244,17 @@ class App
         /* Call any methods */
         foreach($service->methods as $method)
         {
-            /** \todo Support calling closures as well */
-            if(!method_exists($obj, $method->method))
+            if($method->method instanceof \Closure)
+            {
+                // Bind closer to allow function to use $this
+                // to access public members
+                $fn = $method->method->bindTo($obj);
+            }
+            else if(method_exists($obj, $method->method))
+            {
+                $fn = array($obj, $method);
+            }
+            else
             {
                 throw new Exception("No such method for service : {$name} : {$method->method}");
             }
@@ -256,7 +265,7 @@ class App
                 $params[] = $this->normalizeValue($arg);
             }
 
-            call_user_func_array(array($obj, $method->method), $params);
+            call_user_func_array($fn, $params);
         }
 
         /* Save the result if needed */
