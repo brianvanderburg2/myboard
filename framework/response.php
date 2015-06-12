@@ -185,26 +185,26 @@ class Response
      * Send a file.
      * \warning No security checks are preformed on the path here.
      *
-     * \param $file The path of the file to send
+     * \param $filename The path of the file to send
      * \param $cache The time the client should cache this file
      * \param $private Request any middle-man caches to not cache the result if true.
      */
-    public function sendFile($file, $cache=0, $private=FALSE)
+    public function sendFile($filename, $cache=0, $private=FALSE)
     {
         // Handle if-modified-since header
-        $file_timestamp = filemtime($file);
+        $file_timestamp = filemtime($filename);
         if($this->ifModifiedSince($file_timestamp) == FALSE)
         {
             exit();
         }
         
         // Set headers: Content-Type, Content-Length, Content-Disposition
-        header("Content-Length: " . filesize($file));
+        header("Content-Length: " . filesize($filename));
 
         $fi = new \finfo(FILEINFO_NONE); // TODO: allow configuration of mime file used
         $type = $fi->file($filename, FILEINFO_MIME_TYPE);
         if($type === FALSE)
-            $type = "application/octed-stream";
+            $type = "application/octet-stream";
 
         header("Content-Type: " . $type);
 
