@@ -1,0 +1,27 @@
+<?php $template->send("bits/header"); ?>
+
+<div class="panel">
+    <h2><?= $page->escHtml($title); ?></h2>
+    <?php if($key !== FALSE) { ?>
+        <p>Your admin key is: <span><?= $page->escHtml($key); ?></span></p>
+    <?php } else { ?>
+        <form method="post" action="">
+            <dl class="fields1">
+                <dt>
+                    <label for="password">Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" name="password" id="password" />
+                </dd>
+                <dt>
+                    <label for="password2">Repeat Password:</label>
+                </dt>
+                <dd>
+                    <input type="password" name="password2" id="password2" />
+                </dd>
+            </dl>
+        </form>
+    <?php } ?>
+</div>
+
+<?php $template->send("bits/footer"); ?>

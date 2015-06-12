@@ -94,6 +94,24 @@ will be entirely set to null instead of trying to guess what to do with the miss
    The extension to expect for templates \n
    DEFAULT: ".phtml"
 
+\b MimeType
+
+When determine the content type of a file, a parameter can be used to determine
+whether file extensions, a magic file, or both are used.  File extensions are
+checked first, with the longest matched extension determining the type.  Magic
+file checks are performed second.
+
+ - \b mime.types \n
+   An array of file name endings to content type values.  The result is merged into
+   an internal set of defaults. \n
+   DEAULT: array()
+ - \b mime.magic.enable \n
+   Enable or disable the use of a mime magic file. \n
+   DEFAULT: TRUE
+ - \b mime.magic.file \n
+   Specify which magic file to use for mime magic checks. If not specified, the 
+   default location will be used.
+
 \subsection readme_config_board Board
 
  - \b app.dispatcher.class \n

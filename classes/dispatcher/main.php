@@ -13,7 +13,7 @@ class Main extends Framework\Dispatcher
     {
         if(count($path))
         {
-            if(!in_array($path[0], array("install", "upgrade", "resource")))
+            if(!in_array($path[0], array("adminkey", "install", "upgrade", "resource")))
             {
                 $installer = $this->app->getService("installer");
                 if(!$installer->isUpToDate())
@@ -31,22 +31,59 @@ class Main extends Framework\Dispatcher
             }
         }
 
-        return parent::dispatch($request, $path);
+        parent::dispatch($request, $path);
+    }
+
+    public function dispatch_adminkey($request, $path)
+    {
+        if(count($path) > 0)
+        {
+            return;
+        }
+
+        // Show a page allowing to generate an admin key
+        $pw = $request->post("password");
+
+        $page = $this->app->getService("page");
+        $page->set("title", "Create Admin Key");
+        $page->set("key", ($pw !== null) ? $this->app->createAdminKey($pw) : FALSE);
+        $page->send("admin/adminkey");
+
+        exit();
     }
 
     public function dispatch_upgrade($request, $path)
     {
-        return FALSE;
     }
 
     public function dispatch_install($request, $path)
     {
-        return FALSE;
     }
 
     public function dispatch_resource($request,  $path)
     {
-        return FALSE;
+        // Only allow for certain items
+        if(count($path) == 0 || !in_array($path[0], ["images", "styles", "jscripts"]))
+        {
+            return;
+        }
+
+        // Build path
+        $path = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $path);
+
+        // Find the file
+        foreach(["user", "app"] as $test)
+        {
+            $datadir = $this->app->getDataDir($test);
+            if($datadir !== null && is_readable($datadir . $path))
+            {
+                $this->app->getService("response")->sendfile($datadir . $path);
+                exit();
+            }
+        }
+
+        // File not found
+        return;
     }
 }
 
