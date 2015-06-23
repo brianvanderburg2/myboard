@@ -15,6 +15,9 @@ namespace mrbavii\Framework;
  */
 class App
 {
+    use PhpLoader;
+
+
     // currently active app instance
     protected static $instance = null;
 
@@ -536,10 +539,21 @@ class App
         // by default uses "app.dispatcher.class" class for the root
         // dispatcher
 
+        // If a filename is specified, load that file instead of using a class
+        $filename = $this->getConfig("app.dispatcher.php");
+        if($filename !== null)
+        {
+            $params = ["app" => $this, "request" => $request, "path" => $path];
+            $this->loadPhp($filename, $params);
+            return;
+        }
+
+        // Use dispatcher class
         $obj = $this->getService("dispatcher");
         if($obj !== null)
         {
             $obj->dispatch($request, $path);
+            return;
         }
     }
 
