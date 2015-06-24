@@ -10,32 +10,32 @@ namespace mrbavii\Framework;
  * A PHP loader loads PHP files while extracting parameters.  Nested calls to the
  * load method will merge parameters with previous calls.
  */
-trait PhpLoader
+class PhpLoader
 {
-    protected $loadPhpParams = array();
+    protected $params = array();
 
     public function loadPhp($filename, $params=null, $override=FALSE)
     {
         $saved = null;
         if($params !== null)
         {
-            $saved = $this->loadPhpParams;
+            $saved = $this->params;
             if($override)
             {
-                $this->loadPhpParams = $params;
+                $this->params = $params;
             }
             else
             {
-                $this->loadPhpParams = array_merge($this->loadPhpParams, $params);
+                $this->params = array_merge($this->params, $params);
             }
         }
 
         try
         {
-            $result = Util::loadPhp($filename, $this->loadPhpParams, TRUE);
+            $result = self::load($filename, $this->params);
             if($saved !== null)
             {
-                $this->loadPhpParams = $saved;
+                $this->params = $saved;
             }
             return $result;
         }
@@ -43,10 +43,26 @@ trait PhpLoader
         {
             if($saved !== null)
             {
-                $this->loadPhpParams = $saved;
+                $this->params = $saved;
             }
             throw $e;
         }
+    }
+
+    public function setParam($name, $value)
+    {
+        $this->params[$name] = $value;
+    }
+
+    public function setParams($values)
+    {
+        $this->params = array_merge($this->params, $values);
+    }
+
+    protected static function load($__filename__, $__params__)
+    {
+        extract($__params__);
+        return require $__filename__;
     }
 }
 

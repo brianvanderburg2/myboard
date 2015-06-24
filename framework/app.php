@@ -15,8 +15,7 @@ namespace mrbavii\Framework;
  */
 class App
 {
-    use PhpLoader;
-
+    protected $loader = null;
 
     // currently active app instance
     protected static $instance = null;
@@ -534,28 +533,30 @@ class App
      */
     protected function dispatch($request, $path)
     {
-        // A derived app can override this.  Here we directly create dispatcher
-        // based on service configuration. (Uses "dispatcher" service, which
-        // by default uses "app.dispatcher.class" class for the root
-        // dispatcher
-
-        // If a filename is specified, load that file instead of using a class
-        $filename = $this->getConfig("app.dispatcher.php");
+        $filename = $this->getConfig("app.dispatcher.filename");
         if($filename !== null)
         {
             $params = ["app" => $this, "request" => $request, "path" => $path];
             $this->loadPhp($filename, $params);
-            return;
-        }
-
-        // Use dispatcher class
-        $obj = $this->getService("dispatcher");
-        if($obj !== null)
-        {
-            $obj->dispatch($request, $path);
-            return;
         }
     }
+
+    /**
+     * Load a php file using the loader.
+     *
+     * \param $filename The name of the file to load.
+     * \param $params Additional parameters to pass to the loader.
+     * \param $override TRUE to override all previous loader parameters.
+     * \return The return value of the included the PHP file.
+     */
+     public function loadPhp($filename, $params=null, $override=FALSE)
+     {
+        if($this->loader == null)
+        {
+            $this->loader = new PhpLoader();
+        }
+        return $this->loader->loadPhp($filename, $params, $override);
+     }
 
     /**
      * Show an error page.

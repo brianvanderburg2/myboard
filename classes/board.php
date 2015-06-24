@@ -31,7 +31,7 @@ class Board extends Framework\App
     {
         // Configuration
         $default_config = array(
-            "app.dispatcher.class" => __NAMESPACE__ . "\\Dispatcher\\Main",
+            "app.dispatcher.filename" => __DIR__ . "/dispatcher/main.php",
             "app.datadir.app" => __DIR__ . "/../data"
         );
 

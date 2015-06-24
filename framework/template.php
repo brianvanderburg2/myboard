@@ -8,23 +8,27 @@ namespace mrbavii\Framework;
 
 class Template
 {
+    private $loader = null;
     protected $app = null;
     protected $path = null;
-    protected $params = null;
     protected $ext = null;
     protected $cache = array();
 
     public function __construct($app)
     {
-        $this->app = $app;
+        $this->loader = new PhpLoader();
 
+        $this->app = $app;
         $this->path = $app->getConfig("template.path", array(
             "%app.datadir.user%/templates",
             "%app.datadir.app%/templates"
         ));
 
-        $this->params = $app->getConfig("template.params", array());
+        $this->loader->setParams($app->getConfig("template.params", array()));
         $this->ext = $app->getConfig("template.ext", ".phtml");
+
+        $this->loader->setParam("app", $this->app);
+        $this->loader->setParam("template", $this);
     }
  
     public function send($template, $params=null, $override=FALSE)
@@ -46,46 +50,17 @@ class Template
 
     public function getFile($path, $params=null, $override=FALSE)
     {
-        $saved = null;
-        if($params !== null)
-        {
-            $saved = $this->params;
-            if($override)
-            {
-                $this->params = $params;
-            }
-            else
-            {
-                $this->params = array_merge($this->params, $params);
-            }
-        }
-
-        // Always set $template and $app
-        $this->params["template"] = $this;
-        $this->params["app"] = $this->app;
-
         ob_start();
         try
         {
-            Util::loadPhp($path, $this->params, TRUE);
-
-            if($saved !== null)
-            {
-                $this->params = $saved;
-            }
-
+            $this->loader->loadPhp($path, $params, $override);
             return ob_get_clean();
         }
         catch(\Exception $e)
         {
-            if($saved != null)
-            {
-                $this->params = $saved;
-            }
             ob_end_clean();
-
             throw $e;
-        } 
+        }
     }
 
     public function find($template)

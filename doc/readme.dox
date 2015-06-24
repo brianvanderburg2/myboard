@@ -58,14 +58,9 @@ will be entirely set to null instead of trying to guess what to do with the miss
    The index page.  If there is no path information, this is the default
    path information to redirect to. \n
    DEFAULT: "/index"
- - \b app.dispatcher.php \n
-   The root dispatcher PHP file.  If this configuration is set, it will be used
-   instead of app.dispatcher.class and will be the name of the file loaded during
-   dispatch.  The initial parameters $app, $request, and $path will be set.
- - \b app.dispatcher.class \n
-   The root dispatcher class.  If the derived application does not override
-   the dispatch method, the internal dispatch method get the dispatch service
-   which uses this configuration as the class name. \n
+ - \b app.dispatcher.filename \n
+   The root dispatcher PHP file.  This file will be loaded during dispatch.
+   The initial parameters $app, $request, and $path will be set.
  - \b app.error.enable_handler \n
    Whether to enable the internal error handlers or not.  If set, then errors
    and exceptions will be handled by App::errorHandler and App::exceptionHandler. \n
@@ -118,11 +113,11 @@ file checks are performed second.
 
 \subsection readme_config_board Board
 
- - \b app.dispatcher.class \n
-   DEFAULT: "mrbavii\Board\Dispatcher\Main"
+ - \b app.dispatcher.filename \n
+   SET: __DIR__ . "/dispatcher/main.php"
  - \b app.datadir.app \n
-   DEFAULT: Board internal data directory
- - \b app.datadir.app \n
+   SET: Board internal data directory
+ - \b app.datadir.user \n
    The directory for user changes to board data files. \n
-   REQUIERD \n
+   REQUIERD
 */
