@@ -7,83 +7,64 @@
 namespace mrbavii\MyBoard\Dispatcher;
 use mrbavii\Framework;
 
-class Main extends Framework\Dispatcher
+// Must have an argument
+if(count($path) == 0)
+    return;
+
+// Check if already installed, redirect if not
+if(!in_array($path[0], array("adminkey", "install", "upgrade", "resource")))
 {
-    public function dispatch($request, $path)
+    $installer = $app->getService("installer");
+    if(!$installer->isUpToDate())
     {
-        if(count($path))
+        if($installer->isInstalled())
         {
-            if(!in_array($path[0], array("adminkey", "install", "upgrade", "resource")))
-            {
-                $installer = $this->app->getService("installer");
-                if(!$installer->isUpToDate())
-                {
-                    if($installer->isInstalled())
-                    {
-                        $this->app->redirect("/upgrade");
-                    }
-                    else
-                    {
-                        $this->app->redirect("/install");
-                    }
-                    exit();
-                }
-            }
+            $app->redirect("/upgrade");
         }
-
-        parent::dispatch($request, $path);
-    }
-
-    public function dispatch_adminkey($request, $path)
-    {
-        if(count($path) > 0)
+        else
         {
-            return;
+            $app->redirect("/install");
         }
-
-        // Show a page allowing to generate an admin key
-        $pw = $request->post("password");
-
-        $page = $this->app->getService("page");
-        $page->set("title", "Create Admin Key");
-        $page->set("key", ($pw !== null) ? $this->app->createAdminKey($pw) : FALSE);
-        $page->send("admin/adminkey");
-
         exit();
     }
+}
 
-    public function dispatch_upgrade($request, $path)
+$action = array_shift($path);
+
+if($action == "adminkey" and count($path) == 0)
+{
+    // Show a page allowing to generate an admin key
+    $pw = $request->post("password");
+
+    $page = $app->getService("page");
+    $page->set("title", "Create Admin Key");
+    $page->set("key", ($pw !== null) ? $app->createAdminKey($pw) : FALSE);
+    $page->send("admin/adminkey");
+    exit();
+}
+else if($action == "resource")
+{
+    // Only allow for certain items
+    if(count($path) == 0 || !in_array($path[0], ["images", "styles", "jscripts"]))
     {
-    }
-
-    public function dispatch_install($request, $path)
-    {
-    }
-
-    public function dispatch_resource($request,  $path)
-    {
-        // Only allow for certain items
-        if(count($path) == 0 || !in_array($path[0], ["images", "styles", "jscripts"]))
-        {
-            return;
-        }
-
-        // Build path
-        $path = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $path);
-
-        // Find the file
-        foreach(["user", "app"] as $test)
-        {
-            $datadir = $this->app->getDataDir($test);
-            if($datadir !== null && is_readable($datadir . $path))
-            {
-                $this->app->getService("response")->sendfile($datadir . $path);
-                exit();
-            }
-        }
-
-        // File not found
         return;
     }
+
+    // Build path
+    $path = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $path);
+
+    // Find the file
+    foreach(["user", "app"] as $test)
+    {
+        $datadir = $app->getDataDir($test);
+        if($datadir !== null && is_readable($datadir . $path))
+        {
+            $app->getService("response")->sendfile($datadir . $path);
+            exit();
+        }
+    }
+
+    // File not found
+    return;
 }
 
