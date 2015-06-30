@@ -7,9 +7,31 @@
 namespace mrbavii\MyBoard\Dispatcher;
 use mrbavii\Framework;
 
+
 // Must have an argument
-if(count($path) == 0)
-    return;
+if(count($path) == 0 || (count($path) == 1 && strlen($path[0]) == 0))
+{
+    $app->redirect("/index");
+    exit();
+}
+
+// For this app, nothing should end with a '/' redirect without if needed
+if(strlen($path[count($path) - 1]) == 0)
+{
+    array_pop($path);
+    $app->redirect($path);
+    exit();
+}
+
+// Check path components for security
+foreach($path as $part)
+{
+    if(strlen($part) == 0 || !Framework\Security::checkPathComponent($part))
+    {
+        return; // 404
+    }
+}
+
 
 // Check if already installed, redirect if not
 if(!in_array($path[0], array("adminkey", "install", "upgrade", "resource")))
