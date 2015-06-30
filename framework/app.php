@@ -496,29 +496,6 @@ class App
         $request->setPathinfo($pathinfo);
         $path = $request->path();
 
-        // Redirect to index if needed
-        if(count($path) == 0 || (count($path) == 1 && strlen($path[0]) == 0))
-        {
-            // No path ("/entry.php") or single trailing slash ("/entry.php/")
-            $this->redirect($this->getConfig("app.dispatcher.index", "/index"));
-        }
-        // If ending with "/", redirect without it
-        else if(strlen($path[count($path) - 1]) == 0)
-        {
-            array_pop($path);
-            $this->redirect("/" . implode("/", $path));
-        }
-
-        // Check the path components
-        foreach($path as $part)
-        {
-            if(strlen($part) == 0 || !Security::checkPathComponent($part))
-            {
-                $this->errorPage($request, 404);
-                exit();
-            }
-        }
-
         // Dispatch
         $this->dispatch($request, $path);
 
@@ -573,6 +550,11 @@ class App
      */
     public function url($url)
     {
+        if(is_array($url))
+        {
+            $url = "/" . implode("/", $url);
+        }
+
         return $this->getService("request")->entry() . $url;
     }
 
@@ -583,7 +565,6 @@ class App
     {
         $response = $this->getService("response");
         $response->redirect($this->url($url));
-        /** \todo send a template for the response */
         exit();
     }
 

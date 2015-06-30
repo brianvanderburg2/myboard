@@ -54,10 +54,6 @@ will be entirely set to null instead of trying to guess what to do with the miss
 
 \b App
 
- - \b app.dispatcher.index \n
-   The index page.  If there is no path information, this is the default
-   path information to redirect to. \n
-   DEFAULT: "/index"
  - \b app.dispatcher.filename \n
    The root dispatcher PHP file.  This file will be loaded during dispatch.
    The initial parameters $app, $request, and $path will be set.
