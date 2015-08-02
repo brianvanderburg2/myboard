@@ -96,23 +96,6 @@ class App
         }
 
         // Set up some default services
-        // logger, captcha, cache, session, database, template, request, response, etc
-
-        /*
-        registerService(
-        registerService("cache", ...);
-        registerService("captcha", ...);
-        registerService("database", ...);
-        registerService("dispatcher", "%app.dispatcher.class%", array($this));
-        registerService("logger");
-        registerService("request", ...);
-        registerService("response", ...);
-        registerService("session", ...);
-        registerService("template", ...);
-        */
-
-        // dispatcher
-        $this->registerService("dispatcher", "%app.dispatcher.class%", array($this));
 
         // request
         $this->registerService("request", __NAMESPACE__ . "\\Request", array($this));
