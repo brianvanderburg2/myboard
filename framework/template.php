@@ -80,7 +80,7 @@ class Template
                 continue;
 
             // TODO: maybe better file checks to prevent security issues
-            $file = $dir . "/" . $template . $this->ext;;
+            $file = $dir . "/" . str_replace(".", "/", $template) . $this->ext;;
             if(file_exists($file))
             {
                 $path = $file;
