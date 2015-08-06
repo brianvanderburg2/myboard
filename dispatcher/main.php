@@ -61,7 +61,7 @@ if($action == "adminkey" and count($path) == 0)
     $page = $app->getService("page");
     $page->set("title", "Create Admin Key");
     $page->set("key", ($pw !== null) ? $app->createAdminKey($pw) : FALSE);
-    $page->send("admin/adminkey");
+    $page->send("admin.adminkey");
     exit();
 }
 else if($action == "resource")
