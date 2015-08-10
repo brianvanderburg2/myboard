@@ -138,7 +138,7 @@ class Request
     /**
      * Set a user parameter.
      */
-    public function set($name, $value)
+    public function setParam($name, $value)
     {
         $this->_params[$name] = $value;
     }
@@ -181,6 +181,24 @@ class Request
     }
 
     /**
+     * Get either a $_GET or $_POST
+     */
+    public function get($name, $defval=null)
+    {
+        if(isset($_GET[$name]))
+        {
+            return $_GET[$name];
+        }
+
+        if(isset($_POST[$name]))
+        {
+            return $_POST[$name];
+        }
+
+        return $defval;
+    }
+
+    /**
      * Get a $_COOKIE variable.
      */
     public function cookie($name=null, $defval=null)
@@ -216,42 +234,6 @@ class Request
             return $_ENV;
         }
         return isset($_ENV[$name]) ? $_ENV[$name] : $defval;
-    }
-
-    /**
-     * Get a paramter in specific order
-     * param, get, post, cookie, server, env
-     */
-    public function get($name, $defval=null)
-    {
-        if(isset($this->_params[$name]))
-        {
-            return $this->_params[$name];
-        }
-        else if(isset($_GET[$name]))
-        {
-            return $_GET[$name];
-        }
-        else if(isset($_POST[$name]))
-        {
-            return $_POST[$name];
-        }
-        else if(isset($_COOKIE[$name]))
-        {
-            return $_COOKIE[$name];
-        }
-        else if(isset($_SERVER[$name]))
-        {
-            return $_SERVER[$name];
-        }
-        else if(isset($_ENV[$name]))
-        {
-            return $_ENV[$name];
-        }
-        else
-        {
-            return $defval;
-        }
     }
 
     /**
