@@ -31,7 +31,7 @@ class Board extends Framework\App
     {
         // Configuration
         $default_config = array(
-            "app.dispatcher.filename" => __DIR__ . "/../dispatcher/main.php",
+            "app.dispatcher.filename" => __DIR__ . "/../dispatch/main.php",
             "app.datadir.app" => __DIR__ . "/../data"
         );
 
@@ -39,7 +39,7 @@ class Board extends Framework\App
         parent::__construct(array_merge($default_config, $config));
         
         // Register services objects default objects
-        $this->registerService("installer", __NAMESPACE__ . "\\Installer", array($this));
+        $this->registerService("util", __NAMESPACE__ . "\\Util", array($this));
         $this->registerService("page", __NAMESPACE__ . "\\Page", array($this))->setShared(FALSE);
     }
 

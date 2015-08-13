@@ -1,15 +1,15 @@
 <?php
 
-// File:        installer.php
+// File:        util.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     The installer for the board software
+// Purpose:     The utility service for the board software
 
 namespace mrbavii\MyBoard;
 
 /**
- * The installer for the board software
+ * The utiltiy service for the board software
  */
-class Installer
+class Util
 {
     const DBVERSION = 1; /**< Schema version for the database. */
 

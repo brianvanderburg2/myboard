@@ -36,10 +36,10 @@ foreach($path as $part)
 // Check if already installed, redirect if not
 if(!in_array($path[0], array("adminkey", "install", "upgrade", "resource")))
 {
-    $installer = $app->getService("installer");
-    if(!$installer->isUpToDate())
+    $util = $app->getService("util");
+    if(!$util->isUpToDate())
     {
-        if($installer->isInstalled())
+        if($util->isInstalled())
         {
             $app->redirect("/upgrade");
         }
