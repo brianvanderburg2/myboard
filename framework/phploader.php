@@ -61,6 +61,7 @@ class PhpLoader
 
     protected static function load($__filename__, $__params__)
     {
+        unset($__params__['__filename__']);
         extract($__params__);
         return require $__filename__;
     }
