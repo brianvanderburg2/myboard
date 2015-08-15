@@ -47,6 +47,17 @@ abstract class Driver
     abstract public function getTables();
 
     /**
+     * Determine if a table exists.
+     *
+     * \param name The name of a table to test for
+     * \return TRUE if the table exists, otherwise false.
+     */
+    public function tableExists($name)
+    {
+        return in_array($name, $this->getTables());
+    }
+
+    /**
      * Get the columns of a table.
      *
      * \param $table The name of the table.

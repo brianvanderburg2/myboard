@@ -45,6 +45,24 @@ abstract class Query
     abstract public function fetchAll();
 
     /**
+     * Fetch only one column from the next result set.
+     *
+     * \param $col The column name to fetch
+     * \param $defval The default value to return if no data is found.
+     * \return The value of that column, or the default value.
+     */
+    public function fetchCol($col, $defval=FALSE)
+    {
+        $result = $this->fetch();
+        if($result !== FALSE && array_key_exists($col, $result))
+        {
+            return $result[$col];
+        }
+
+        return $defval;
+    }
+
+    /**
      * Close the cursor.  This should be called when finished with
      * the query and before calling execute again.
      */
