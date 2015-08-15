@@ -45,7 +45,11 @@ abstract class Driver_pdo extends Driver
         // Connect
         try
         {
+            // Apparently we need to set error mode attribute here as well
+            // as with the construction options. Otherwise some cases don't
+            // show errors but instead return false on error.
             $this->pdo = new \PDO($dsn, $username, $password, $options);
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
         catch(\PDOException $e)
         {

@@ -42,7 +42,7 @@ class Driver_mysql extends Driver_pdo
             // Enable foreign key constraints
             $this->pdo->exec("SET foreign_key_checks = 1");
             // SERIALIZABLE isolation level
-            $this->pdo->exec("SET TRANSACTION ISOLATION_LEVEL SERIALIZABLE");
+            $this->pdo->exec("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
             // Set UTF-8 (utf8mb4 for full unicode support, but takes 4 bytes per char)
             // my.cnf should have
             // [mysqld]
