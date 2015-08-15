@@ -64,6 +64,14 @@ if($action == "adminkey" and count($path) == 0)
     $page->send("admin.adminkey");
     exit();
 }
+else if($action == "install")
+{
+    return $app->loadPhp(__DIR__ . "/installer/install.php");
+}
+else if($action == "upgrade")
+{
+    return $app->loadPhp(__DIR__ . "/installer/upgrade.php");
+}
 else if($action == "resource")
 {
     // Only allow for certain items
