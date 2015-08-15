@@ -69,7 +69,7 @@ config:
 .PHONY: start-php stop-php
 start-php: stop config
 	/usr/sbin/php5-fpm --daemonize --fpm-config $(ROOTDIR)/output/config/php/php-fpm.conf \
-		--no-php-ini --php-ini $(ROOTDIR)/output/config/php/php.ini
+		--php-ini $(ROOTDIR)/output/config/php/php.ini
 
 stop-php:
 	test ! -f $(ROOTDIR)/output/run/php5-fpm.pid || kill `cat $(ROOTDIR)/output/run/php5-fpm.pid`
