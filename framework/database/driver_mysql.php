@@ -43,10 +43,18 @@ class Driver_mysql extends Driver_pdo
             $this->pdo->exec("SET foreign_key_checks = 1");
             // SERIALIZABLE isolation level
             $this->pdo->exec("SET TRANSACTION ISOLATION_LEVEL SERIALIZABLE");
-            // Set UTF-8
-            $this->pdo->exec("SET NAMES 'utf8'");
-            $this->pdo->exec("SET CHARACTER SET utf8");
-            $this->pdo->exec("SET COLLATION_CONNECTION = 'utf8_unicode_ci'");
+            // Set UTF-8 (utf8mb4 for full unicode support, but takes 4 bytes per char)
+            // my.cnf should have
+            // [mysqld]
+            // character-set_server = utf8mb4
+            // collation-server = utf8mb4_unicode_ci
+            // [client]
+            // default-character-set = utf8mb4
+            // [default]
+            // default-character-set = utf8mb4
+            $this->pdo->exec("SET CHARACTER SET utf8mb4");
+            $this->pdo->exec("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
+            $this->pdo->exec("SET COLLATION_CONNECTION = 'utf8mb4_unicode_ci'");
         }
         catch(\PDOException $e)
         {
