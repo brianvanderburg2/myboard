@@ -58,7 +58,29 @@ class Util
      */
     public function getVersion()
     {
-        return FALSE;
+        if($this->version !== null)
+            return $this->version;
+
+        $db = $this->board->getService("database")->connection("myboard");
+
+        if(!$db->tableExists("myboard_settings"))
+        {
+            $this->version = FALSE;
+        }
+        else
+        {
+            $value = $db->query("SELECT value FROM myboard_settings WHERE name = 'database.version'")->fetchCol("value");
+            if($value === FALSE)
+            {
+                $this->version = FALSE;
+            }
+            else
+            {
+                $this->version = intval($value);
+            }
+        }
+
+        return $this->version;
     }
 
     /**
