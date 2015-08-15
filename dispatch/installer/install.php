@@ -21,34 +21,36 @@ else if($action == "install")
     $db = $app->getService("database")->connection("myboard");
     list($tables, $constraints, $props) = $app->loadPhp(__DIR__ . "/tables.inc");
 
-    foreach($tables as $table => $cols)
+
+    // Drop tables in reverse to avoid foreign key issues.
+    foreach(array_reverse(array_keys($tables)) as $table)
     {
-        // Drop the table first
         $sql = "DROP TABLE IF EXISTS {$table}";
         $db->execute($sql);
+    }
 
-        // Now create the table
+    // Now create the tables forward
+    foreach($tables as $table => $cols)
+    {
         $colsql = [];
         foreach($cols as $col => $coldef)
         {
-            $colsql[] = $col . " " . $coldef;
+            $colsql[] = "    " . $col . " " . $coldef;
         }
-        $sql = "CREATE TABLE {$table} (";
-        $sql .= implode(",", $colsql);
+        $sql = "CREATE TABLE {$table} (\n";
+        $sql .= implode(",\n", $colsql);
 
         if(isset($constraints[$table]))
         {
-            $sql .= "," . implode(",", $constraints[$table]);
+            $sql .= ",\n    " . implode(",\n    ", $constraints[$table]);
         }
 
-        $sql .= ")";
+        $sql .= "\n)";
         if(count($props))
         {
-            $sql .= " " . implode(",", $props);
+            $sql .= " " . implode(", ", $props);
         }
-        echo $sql;
-        echo "<br/>";
-        var_dump(($db->execute($sql)));
+        $db->execute($sql);
     }
 
     $page = $app->getService("page");
