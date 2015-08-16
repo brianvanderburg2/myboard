@@ -1,6 +1,7 @@
 <?php
 
 $config = array(
+    'database.default' => 'myboard',
     'database.connections.myboard' => array(
         'driver' => 'mysql',
         'host' => '127.0.0.1',
