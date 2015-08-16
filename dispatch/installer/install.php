@@ -21,7 +21,7 @@ if($action === null)
 }
 else if($action == "install")
 {
-    $db = $app->getService("database")->connection("myboard");
+    $db = $app->getService("database")->connection();
     list($tables, $constraints, $props) = $app->loadPhp(__DIR__ . "/tables.inc");
 
 
