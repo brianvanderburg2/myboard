@@ -33,7 +33,7 @@ class Manager
      * Get a connection to a specific cache driver.
      *
      * \param driver The name of the cache driver.  Null to use the default.
-     * \return The cache connection.  If teh connection is already established
+     * \return The cache connection.  If the connection is already established
      *  the existing connection will be returned.
      */
     public function connection($driver=null)
@@ -83,5 +83,4 @@ class Manager
             throw new Exception("Connect error : Unsupported cache driver : " . $driver);
         }
     }
-
 }
