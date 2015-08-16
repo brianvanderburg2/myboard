@@ -4,8 +4,8 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Main dispatcher
 
-namespace mrbavii\MyBoard\Dispatcher;
 use mrbavii\Framework;
+use mrbavii\MyBoard;
 
 
 // Must have an argument
@@ -58,7 +58,7 @@ if($action == "adminkey" and count($path) == 0)
     // Show a page allowing to generate an admin key
     $pw = $request->post("password");
 
-    $page = $app->getService("page");
+    $page = new MyBoard\Page($app);
     $page->set("title", "Create Admin Key");
     $page->set("key", ($pw !== null) ? $app->createAdminKey($pw) : FALSE);
     $page->send("admin.adminkey");

@@ -2,6 +2,9 @@
 
 // Install the MyBoard software.
 
+use mrbavii\Framework;
+use mrbavii\MyBoard;
+
 // Steps:
 // 1. Gather information from the user
 // 2. Create database tables
@@ -11,7 +14,7 @@
 $action = $request->get("action");
 if($action === null)
 {
-    $page = $app->getService("page");
+    $page = new MyBoard\Page($app);
     $page->set("title", "Install - Configuration");
     $page->send("admin.install.config");
     exit();
@@ -53,7 +56,7 @@ else if($action == "install")
         $db->execute($sql);
     }
 
-    $page = $app->getService("page");
+    $page = new MyBoard\Page($app);
     $page->set("title", "Install - Finished");
     //$page->send("admin.install.finished");
 }

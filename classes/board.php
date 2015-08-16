@@ -40,7 +40,6 @@ class Board extends Framework\App
         
         // Register services objects default objects
         $this->registerService("util", __NAMESPACE__ . "\\Util", array($this));
-        $this->registerService("page", __NAMESPACE__ . "\\Page", array($this))->setShared(FALSE);
     }
 
     public function errorPage($request, $code, $msg="")
