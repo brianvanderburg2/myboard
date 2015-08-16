@@ -111,6 +111,9 @@ class App
 
         // mime
         $this->registerService("mime", __NAMESPACE__ . "\\MimeType", array($this));
+
+        // session
+        $this->registerService("session", __NAMESPACE__ . "\\Session\\Manager", array($this));
     }
 
     /**
