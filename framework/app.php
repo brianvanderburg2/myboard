@@ -475,15 +475,16 @@ class App
      * Execute the application.
      *
      * \param $pathinfo Set to the path info if the default detection doesn't work.
+     * \param $extension The extension dispatcher to execute if any.
      */
-    public function execute($pathinfo=null)
+    public function execute($pathinfo=null, $extension=null)
     {
         $request = $this->getService("request");
         $request->setPathinfo($pathinfo);
         $path = $request->path();
 
         // Dispatch
-        $this->dispatch($request, $path);
+        $this->dispatch($request, $path, $extension);
 
         // Dispatch should exit, not return;
         $this->errorPage($request, 404);
@@ -494,9 +495,17 @@ class App
     /**
      * Handle dispatching for a particular request after checks have been made.
      */
-    protected function dispatch($request, $path)
+    protected function dispatch($request, $path, $extension=null)
     {
-        $filename = $this->getConfig("app.dispatcher.filename");
+        if($extension === null)
+        {
+            $filename = $this->getConfig("app.dispatcher");
+        }
+        else
+        {
+            $filename = $this->getConfig("app.dispatcher.{$extension}");
+        }
+
         if($filename !== null)
         {
             $params = ["app" => $this, "request" => $request, "path" => $path];
