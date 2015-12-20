@@ -493,24 +493,26 @@ class App
     }
 
     /**
-     * Handle dispatching for a particular request after checks have been made.
+     * Handle dispatching for a particular request.
      */
     protected function dispatch($request, $path, $extension=null)
     {
         if($extension === null)
         {
-            $filename = $this->getConfig("app.dispatcher");
+            $classname = $this->getConfig("app.dispatcher");
         }
         else
         {
-            $filename = $this->getConfig("app.dispatcher.{$extension}");
+            $classname = $this->getConfig("app.dispatcher.{$extension}");
         }
 
-        if($filename !== null)
+        if(class_exists($classname, TRUE))
         {
-            $params = ["app" => $this, "request" => $request, "path" => $path];
-            $this->loadPhp($filename, $params);
+            $obj = new $classname($this);
+            return $obj->dispatch($request, $path);
         }
+
+        return;
     }
 
     /**

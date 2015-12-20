@@ -55,10 +55,10 @@ will be entirely set to null instead of trying to guess what to do with the miss
 \b App
 
  - \b app.dispatcher \n
-   The root dispatcher PHP file.  This file will be loaded during dispatch.
-   The initial parameters $app, $request, and $path will be set.
+   The dispatcher class name.  An instance of this class will be created
+   during the dispatch.
  - \b app.dispatcher.<extension> \n
-   The dispatcher PHP file when execute is called specifying an extension.
+   The dispatcher class name when execute is called specifying an extension.
  - \b app.error.enable_handler \n
    Whether to enable the internal error handlers or not.  If set, then errors
    and exceptions will be handled by App::errorHandler and App::exceptionHandler. \n
