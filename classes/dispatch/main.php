@@ -70,7 +70,7 @@ class Main extends Framework\Dispatcher
         $page = new MyBoard\Page($this->app);
         $page->set("title", "Create Admin Key");
         $page->set("key", ($pw !== null) ? $this->app->createAdminKey($pw) : FALSE);
-        $page->send("admin.adminkey");
+        $page->send("/admin/adminkey");
         exit();
     }
 
