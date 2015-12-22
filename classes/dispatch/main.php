@@ -13,7 +13,7 @@ class Main extends Framework\Dispatcher
     /**
      * Our custom dispatcher performs some initial checks first.
      */
-    public function dispatch($request, $path)
+    public function dispatch($request, $path, $params)
     {
         // Must have an argument
         if(count($path) == 0 || (count($path) == 1 && strlen($path[0]) == 0))
@@ -58,11 +58,11 @@ class Main extends Framework\Dispatcher
         }
 
         // Handle normally
-        return parent::dispatch($request, $path);
+        return parent::dispatch($request, $path, $params);
     }
 
     // Handle admin key
-    public function dispatch_adminkey($request, $path)
+    public function dispatch_adminkey($request, $path, $params)
     {
         // Show a page allowing to generate an admin key
         $pw = $request->post("password");
@@ -75,21 +75,21 @@ class Main extends Framework\Dispatcher
     }
 
     // Handle install
-    public function dispatch_install($request, $path)
+    public function dispatch_install($request, $path, $params)
     {
         $obj = new Installer($this->app);
         return $obj->dispatch($request, $path);
     }
 
     // Handle upgrade
-    public function dispatch_upgrade($request, $path)
+    public function dispatch_upgrade($request, $path, $params)
     {
         $obj = new Upgrader($this->app);
         return $obj->dispatch($request, $path);
     }
 
     // Handle resources
-    public function dispatch_resource($request, $path)
+    public function dispatch_resource($request, $path, $params)
     {
         // Only allow for certain items
         if(count($path) == 0 || !in_array($path[0], ["images", "styles", "jscripts"]))

@@ -29,7 +29,7 @@ class Dispatcher
     /**
      * Execute the dispatcher.
      */
-    public function dispatch($request, $path)
+    public function dispatch($request, $path, $params)
     {
         // Determine target function
         $target = array_shift($path);
@@ -42,7 +42,7 @@ class Dispatcher
         $method = "dispatch_" . $target;
         if(method_exists($this, $method))
         {
-            return call_user_func([$this, $method], $request, $path);
+            return call_user_func([$this, $method], $request, $path, $params);
         }
         
         // If we got here, the method was not found, just return
