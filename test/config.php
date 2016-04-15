@@ -1,6 +1,6 @@
 <?php
 
-$config = array(
+return array(
     'database.default' => 'myboard',
     'database.connections.myboard' => array(
         'driver' => 'mysql',
@@ -11,10 +11,8 @@ $config = array(
     ),
     
     # This will become output/test/data 
-    'app.datadir.user' => __DIR__ . "/data",
     "app.error.show_user" => TRUE,
 
     # Password: "password" without quotes
     "admin.key" => '$2y$10$zkNHNwZ4fxkOW2OoWzWmjuMRz6TplrR1HmdGCrPcteaek9Rp7zvLS'
 );
-

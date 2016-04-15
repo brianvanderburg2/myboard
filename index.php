@@ -10,4 +10,6 @@
  */
 
 require __DIR__ . '/classes/bootstrap.php';
+$board = new mrbavii\MyBoard\Board();
+$board->execute();
 

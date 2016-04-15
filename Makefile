@@ -35,6 +35,7 @@ doc:
 .PHONY: clean
 clean:
 	rm -r output
+	rm -r userdata
 
 # Tests (unit tests)
 .PHONY: tests
@@ -58,8 +59,8 @@ config:
 	mkdir -p output/run
 	mkdir -p output/config
 	mkdir -p output/data
-	cp $(CONFIG) output/test/config.php
-	cp test/index.php output/test/index.php
+	mkdir -p userdata
+	cp $(CONFIG) userdata/config.php
 	python test/substio.py -i test/config -o output/config \
 		ROOTDIR=$(ROOTDIR) \
 		PORT=$(PORT) SSLPORT=$(SSLPORT)

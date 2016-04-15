@@ -22,24 +22,84 @@ class Board extends Framework\App
     const MAJORVERSION = 0; /**< \brief Major version for board software */
     const MINORVERSION = 0; /**< \brief Minor version for board software */
 
+    protected $_baseurl = null;
+    protected $_basedir = null;
+
     /**
      * Construct the board object
-     *
-     * \param config The configuration used for the board.
      */
-    public function __construct($config)
+    public function __construct()
     {
         // Configuration
-        $default_config = array(
-            "app.dispatcher" => __NAMESPACE__ . "\\Dispatch\\Main",
+        $required_config = array(
+            "app.dispatcher" => __DIR__ . "/../dispatch/main.php",
             "app.datadir.app" => __DIR__ . "/../data"
         );
+        $default_config = array(
+        );
+        $user_config = $this->loadPhp($this->userPath("/config.php"));
 
         // Call base constructor with merged configuration
-        parent::__construct(array_merge($default_config, $config));
+        parent::__construct(array_merge(
+            $default_config, $user_config, $required_config
+        ));
         
         // Register services objects default objects
-        $this->registerService("util", __NAMESPACE__ . "\\Util", array($this));
+        $this->registerService("util", __NAMESPACE__ . "\\Util");
+    }
+
+    /**
+     * Get a URL relative to the entry point.
+     */
+    public function url($url="")
+    {
+        return $this->getService("request")->entry() . $url;
+    }
+
+    /**
+     * Redirect to a url relative to the entry point.
+     */
+    public function redirect($url="")
+    {
+        $response = $this->getService("response");
+        $response->redirect($this->url($url));
+        exit();
+    }
+
+    /**
+     * Get a URL relative to the base contents.
+     */
+    public function topUrl($url="")
+    {
+        $entry = $this->url();
+        $last = strrpos($entry, "/");
+        return substr($entry, 0, $last) . $url;
+    }
+
+    public function topPath($path="")
+    {
+        $top = dirname(__DIR__);
+        return $top . $path;
+    }
+
+    public function userUrl($url="")
+    {
+        return $this->topUrl("/userdata" . $url);
+    }
+
+    public function userPath($path="")
+    {
+        return $this->topPath("/userdata" . $path);
+    }
+
+    public function dataUrl($url="")
+    {
+        return $this->topUrl("/data" . $url);
+    }
+
+    public function dataPath($path)
+    {
+        return $this->topPath("/data" . $path);
     }
 
     public function errorPage($request, $code, $msg="")

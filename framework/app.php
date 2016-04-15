@@ -23,9 +23,8 @@ class App
     // Configuration for application and services
     protected $config = null;
 
-    // Known services and instances of single-instance (shared) services
+    // Known services and their instances
     protected $services = array();
-    protected $shared = array();
 
     // Running timer
     protected $timer = null;
@@ -60,10 +59,7 @@ class App
         static::instance($this);
    
         // Set up the configuration
-        $default_config = array(
-        );
-
-        $this->config = array_merge($default_config, $config);
+        $this->config = $config;
 
         // Set up shutdown and error handlers
         register_shutdown_function(function() {
@@ -98,22 +94,22 @@ class App
         // Set up some default services
 
         // request
-        $this->registerService("request", __NAMESPACE__ . "\\Request", array($this));
+        $this->registerService("request", __NAMESPACE__ . "\\Request");
 
         // response
-        $this->registerService("response", __NAMESPACE__ . "\\Response", array($this));
+        $this->registerService("response", __NAMESPACE__ . "\\Response");
 
         // database
-        $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager", array($this));
+        $this->registerService("database", __NAMESPACE__ . "\\Database\\Manager");
 
         // template
-        $this->registerService("template", __NAMESPACE__ . "\\Template", array($this));
+        $this->registerService("template", __NAMESPACE__ . "\\Template");
 
         // mime
-        $this->registerService("mime", __NAMESPACE__ . "\\MimeType", array($this));
+        $this->registerService("mime", __NAMESPACE__ . "\\MimeType");
 
         // session
-        $this->registerService("session", __NAMESPACE__ . "\\Session\\Manager", array($this));
+        $this->registerService("session", __NAMESPACE__ . "\\Session\\Manager");
     }
 
     /**
@@ -133,32 +129,15 @@ class App
      * Register a service in the container.
      *
      * \param $name The name of the service to be used by getService.
-     * \param $cls
+     * \param $ctor
      *   - If this is a closure or array, it will be treated as the 
      *     constructor function to call.
      *   - If this is a string, it will be treated as the classname to
      *     create a new instance of.
-     * \param $args An array of arguments to pass
-     * \return An instance of _AppService.
      */
-    public function registerService($name, $cls=null, $args=array())
+    public function registerService($name, $ctor)
     {
-        $service = new _AppService();
-
-        if($cls)
-        {
-            if($cls instanceof \Closure or is_array($cls))
-            {
-                $service->setConstructor($cls, $args);
-            }
-            else
-            {
-                $service->setClass($cls, $args);
-            }
-        }
-
-        $this->services[$name] = $service;
-        return $service;
+        $this->services[$name] = array($ctor, null);
     }
 
     /**
@@ -183,89 +162,32 @@ class App
      */
     public function getService($name)
     {
-        /* Check shared cache */
-        if(isset($this->shared[$name]))
-            return $this->shared[$name];
-
         /* Get service info */
         if(!isset($this->services[$name]))
-            return null;
-
-        $service = $this->services[$name];
-
-        /* Create the service */
-        $params = array();
-        foreach($service->arguments as $arg)
         {
-            $params[] = $this->normalizeValue($arg);
+            throw new Exception("No such service: ${name}");
         }
 
-        if($service->constructor)
+        /* Return if already created. */
+        if($this->services[$name][1] !== null)
         {
-            $cons = $this->normalizeValue($service->constructor);
-            if($cons === null)
-            {
-                throw new Exception("Null constructor for service : {$name}");
-            }
-            $obj = call_user_func_array($cons, $params);
+            return $this->services[$name][1];
+        }
+
+        $ctor = $this->services[$name][0];
+        if($ctor instanceof \Closure or is_array($ctor))
+        {
+            $obj = call_user_func_array($ctor, array($this));
         }
         else
         {
-            $cls = $this->normalizeValue($service->class);
-            if($cls === null)
-            {
-                throw new Exception("Null class for service : {$name}");
-            }
-            $reflection = new \ReflectionClass($cls);
-            $obj = $reflection->newInstanceArgs($params);
+            $reflection = new \ReflectionClass($ctor);
+            $obj = $reflection->newInstanceArgs(array($this));
         }
 
-        /* Call any methods */
-        foreach($service->methods as $method)
-        {
-            if($method->method instanceof \Closure)
-            {
-                // Bind closer to allow function to use $this
-                // to access public members
-                $fn = $method->method->bindTo($obj);
-            }
-            else if(method_exists($obj, $method->method))
-            {
-                $fn = array($obj, $method);
-            }
-            else
-            {
-                throw new Exception("No such method for service : {$name} : {$method->method}");
-            }
-
-            $params = array();
-            foreach($method->arguments as $arg)
-            {
-                $params[] = $this->normalizeValue($arg);
-            }
-
-            call_user_func_array($fn, $params);
-        }
-
-        /* Save the result if needed */
-        if($service->shared)
-            $this->shared[$name] = $obj;
-
+        /* Save the result */
+        $this->services[$name][1] = $obj;
         return $obj;
-    }
-
-    /**
-     * Remove a service from the container.
-     *
-     * \param $name The name of the service.
-     */
-    public function removeService($name)
-    {
-        if(isset($this->services[$name]))
-            unset($this->services[$name]);
-
-        if(isset($this->shared[$name]))
-            unset($this->shared[$name]);
     }
 
 
@@ -283,17 +205,6 @@ class App
     public function hasConfig($name)
     {
         return isset($this->config[$name]);
-    }
-
-    /**
-     * Set the value of a configuration.
-     *
-     * \param $name The name of the configuration.
-     * \param $value The value to set the configuration to.
-     */
-    public function setConfig($name, $value)
-    {
-        $this->config[$name] = $value;
     }
 
     /**
@@ -329,26 +240,6 @@ class App
         return $defval;
     }
 
-    /**
-     * Remove a configuration.
-     *
-     * \param $name The name of the configuration.
-     */
-    public function removeConfig($name)
-    {
-        if(isset($this->config[$name]))
-            unset($this->config[$name]);
-    }
-
-    /**
-     * Set all configurations.
-     *
-     * \param $values An associative array of all configuration names and their values.
-     */
-    public function setConfigs($values)
-    {
-        $this->configs = new $values;
-    }
 
     /**
      * Normalize a value based on any references or templates.
@@ -497,11 +388,11 @@ class App
      */
     protected function dispatch($request, $path, $params)
     {
-        $classname = $this->getConfig("app.dispatcher");
-        if(class_exists($classname, TRUE))
+        $filename = $this->getConfig("app.dispatcher");
+        if($filename !== null)
         {
-            $obj = new $classname($this);
-            return $obj->dispatch($request, $path, $params);
+            $params = ["app" => $this, "request" => $request, "path" => $path];
+            $this->loadPhp($filename, $params);
         }
 
         return;
@@ -530,139 +421,6 @@ class App
     public function errorPage($request, $code, $msg="")
     {
     }
-
-    /* URL and redirect methods
-     **************************/
-
-    /**
-     * Get a URL relative to the entry point.
-     */
-    public function url($url)
-    {
-        if(is_array($url))
-        {
-            $url = "/" . implode("/", $url);
-        }
-
-        return $this->getService("request")->entry() . $url;
-    }
-
-    /**
-     * Redirect to a url relative to the entry point.
-     */
-    public function redirect($url)
-    {
-        $response = $this->getService("response");
-        $response->redirect($this->url($url));
-        exit();
-    }
-
-    /* Directory handling methods
-     ****************************/
-
-    /**
-     * Get a data directory.
-     * The data directory is determined by the configuration
-     * value "app.datadir.<name>"
-     *
-     * \param $name The name of the data directory to get
-     * \param $defval The value to return if the data directory is configured.
-     */
-    public function getDataDir($name, $defval=null)
-    {
-        return $this->getConfig("app.datadir.{$name}", $defval);
-    }
-}
-
-/**
- * This class contains the details of a single application service.
- */
-class _AppService
-{
-    public $class = null;
-    public $constructor = null;
-    public $arguments = array();
-    public $methods = array();
-    public $shared = TRUE;
-
-    /**
-     * Set the class the service uses.
-     *
-     * \param $cls The name of the class when creating an instance of this service.
-     * \param $args An array of arguments to pass to the class constructor.
-     * \return $this
-     *
-     * \note setClass and setConstructor are mutually exclusive, the last overrides
-     *       any previous calls.
-     */
-    public function setClass($cls, $args=array())
-    {
-        $this->constructor = null;
-        $this->class = $cls;
-        $this->arguments = $args;
-        return $this;
-    }
-
-    /**
-     * Set the constructor the service uses.
-     *
-     * \param $cons The constructor to use to create an instance of this service.
-     * \param $args An array of arguments to pass to the constructor function.
-     * \return $this
-     *
-     * \note setClass and setConstructor are mutually exclusive, the last overrides
-     *       any previous calls.
-     */
-    public function setConstructor($cons, $args=array())
-    {
-        $this->class = null;
-        $this->constructor = $cons;
-        $this->arguments = $args;
-        return $this;
-    }
-
-    /**
-     * Remove all method calls.
-     *
-     * \return $this
-     */
-    public function clearMethodCalls()
-    {
-        $this->methods = array();
-        return $this;
-    }
-
-    /**
-     * Add a method call.
-     *
-     * \param $method The name of the method on the service object to call.
-     * \param $args An array of arguments to pass to the method call.
-     * \return $this
-     */
-    public function addMethodCall($method, $args=array())
-    {
-        $this->methods[] = new Generic(array(
-            "method" => $method,
-            "arguments" => $args
-        ));
-        return $this;
-    }
-
-    /**
-     * Set whether the service is shared or not.
-     *
-     * When a service is shared, only one instance of the service is created and previous
-     * calls to getService will use that same instance.  When a service is not shared, each
-     * call to getService will create a new instance of that service.  The initial state is
-     * shared.
-     *
-     * \param $shared Whether the service is shared.
-     */
-    public function setShared($shared=TRUE)
-    {
-        $this->shared = $shared;
-        return $this;
-    }
 }
 
 
@@ -679,13 +437,13 @@ class _AppRef
 }
 
 
-
 /**
  * App service reference.
  */
 class _AppServiceRef extends _AppRef
 {
 }
+
 
 /**
  * App configuration reference.

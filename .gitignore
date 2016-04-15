@@ -3,5 +3,6 @@
 *.pyo
 __pycache__/
 /output/
+/userdata/
 !.gitignore
 

@@ -20,9 +20,7 @@ class Template
         $this->loader = new PhpLoader();
 
         $this->app = $app;
-        $this->path = $app->getConfig("template.path", array(
-            "%app.datadir.user%/templates",
-            "%app.datadir.app%/templates"
+        $this->path = $app->getConfig("template.path");
         ));
 
         $this->loader->setParams($app->getConfig("template.params", array()));
